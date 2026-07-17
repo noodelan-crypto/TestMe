@@ -11,7 +11,7 @@ const APP_DEVELOPER = "אריה נודלמן";
    הדביקו כאן את כתובת ה-Worker אחרי הפריסה (ר' worker/testme-worker.js).
    כל עוד השדה ריק, כפתורי ה-AI יוצגו כלא-זמינים במקום להישבר.
    ========================================================= */
-const SERVER_URL = ""; // לדוגמה: "https://testme-worker.<your-subdomain>.workers.dev"
+const SERVER_URL = "https://testme.noodelan.workers.dev";
 
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
