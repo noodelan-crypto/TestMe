@@ -1,5 +1,11 @@
 {
   "name": "testme",
   "main": "worker/testme-worker.js",
-  "compatibility_date": "2026-07-17"
+  "compatibility_date": "2026-07-17",
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "400a20dc39f748caaceeee370ea2de20"
+    }
+  ]
 }
