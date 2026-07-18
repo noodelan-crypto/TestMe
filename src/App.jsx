@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.3.0";
+const APP_VERSION = "3.4.0";
 const APP_UPDATED = "יולי 2026";
 const APP_DEVELOPER = "אריה נודלמן";
 
@@ -2215,6 +2215,7 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.4.0</b> — נוספה תצוגה לפי תאריך בדיקה (בחירה בין תאריכים שהוזנו), וניתוח AI מצטבר חדש שמזהה מגמות בכל בדיקה לאורך זמן וקשרים אפשריים בין בדיקות שונות.<br/>
             <b>3.3.0</b> — נוסף חשבון אישי: הרשמה/התחברות, גיבוי ותוצאות אישיות בענן (מתאושש מכל מכשיר), ושחזור שם משתמש/סיסמה באימייל. התוצאות נשמרות עכשיו גם מקומית בין ביקורים, לא רק בזיכרון הדפדפן הזמני.<br/>
             <b>3.2.1</b> — תיקון בלבול בהעלאת קובץ טקסט/CSV/PDF וצילום דוח: הייבוא האוטומטי כבר קרה בלחיצה אחת, אך כפתור "הוסף מהטקסט" נשאר פעיל ונראה כמו שלב נוסף נדרש. עכשיו הכפתור משתנה ל"✓ יובא כבר" ונחסם אוטומטית לאחר ייבוא מוצלח, עד שהטקסט בתיבה משתנה ידנית.<br/>
             <b>3.2.0</b> — נוסף מדד טסטוסטרון חופשי מחושב (משוואת Vermeulen 1999), מטסטוסטרון כללי + SHBG + אלבומין — עדיף על FAI לגברים במיוחד כשה-SHBG חריג. הנוסחה אומתה מול הדוגמה הרשמית של מחשבון ISSAM (פיתוח קבוצת המחקר המקורית, אוניברסיטת גנט) לפני שילוב.<br/>
@@ -2745,6 +2746,39 @@ function MyResults({ entries, setEntries }) {
     [grouped, latestByTest]
   );
 
+  /* ─ בחירת תאריך צפייה: כל התאריכים הייחודיים שהוזנו, ברירת מחדל "הכל" (מציג את התוצאה העדכנית לכל בדיקה) ─ */
+  const uniqueDates = useMemo(() => [...new Set(entries.map(e => e.date).filter(Boolean))].sort().reverse(), [entries]);
+  const [selectedDate, setSelectedDate] = useState("all");
+  const visibleTestIds = useMemo(() =>
+    selectedDate === "all" ? testIdsSorted : testIdsSorted.filter(tid => grouped[tid].some(e => e.date === selectedDate)),
+    [testIdsSorted, grouped, selectedDate]
+  );
+
+  /* ─ ניתוח AI מצטבר: מגמות + קשרים בין בדיקות לאורך כל התאריכים ─ */
+  const [trendsText, setTrendsText] = useState(null);
+  const [trendsLoading, setTrendsLoading] = useState(false);
+  const [trendsError, setTrendsError] = useState(null);
+  const runTrendsAnalysis = async () => {
+    setTrendsLoading(true); setTrendsError(null); setTrendsText(null);
+    try {
+      const payload = entries.map(e => ({
+        name: TEST_MAP[e.testId]?.name || e.testId,
+        value: e.value,
+        unit: TEST_MAP[e.testId]?.unit || "",
+        date: e.date || null,
+        status: e.status,
+      }));
+      const r = await fetch(SERVER_URL.replace(/\/$/, "") + "/analyze-trends", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entries: payload }),
+      });
+      const d = await r.json();
+      if (!r.ok || d.error) throw new Error(d.error || `שגיאה (${r.status})`);
+      setTrendsText(d.text);
+    } catch (e) { setTrendsError(e.message || "הניתוח נכשל"); }
+    finally { setTrendsLoading(false); }
+  };
+
   const computedIndices = useMemo(() => {
     const out = [];
     const g = latestByTest["gluc"], tg = latestByTest["tg"], hdl = latestByTest["hdl"];
@@ -3151,12 +3185,42 @@ function MyResults({ entries, setEntries }) {
         </div>
       )}
 
-      {testIdsSorted.length === 0 ? (
-        <div className="idx-empty">הוסף/י תוצאות בדיקות דם כדי לראות אילו ערכים חורגים מהטווח התקין, לעקוב אחר מגמות ולבדוק דפוסים אפשריים ביניהם.</div>
+      {uniqueDates.length > 1 && (
+        <div className="idx-block" style={{marginBottom:14}}>
+          <div className="idx-block-label">📅 תצוגה לפי תאריך בדיקה</div>
+          <div className="idx-chip-row">
+            <span className={"idx-chip" + (selectedDate === "all" ? " active" : "")} onClick={() => setSelectedDate("all")}>הכל (עדכני)</span>
+            {uniqueDates.map(d => (
+              <span key={d} className={"idx-chip" + (selectedDate === d ? " active" : "")} onClick={() => setSelectedDate(d)}>{d}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {entries.length > 0 && (
+        <div className="idx-block" style={{marginBottom:14}}>
+          <button className="idx-add-btn" style={{borderRadius:9, padding:"9px 16px", fontSize:13.5}} disabled={trendsLoading} onClick={runTrendsAnalysis}>
+            {trendsLoading ? "מנתח מגמות וקשרים…" : "🧠 ניתוח AI מצטבר — מגמות וקשרים בין בדיקות"}
+          </button>
+          {trendsError && <div style={{marginTop:10, fontSize:13, color:"#B23A48"}}>{trendsError}</div>}
+          {trendsText && (
+            <div style={{marginTop:12, fontSize:14, lineHeight:1.8, whiteSpace:"pre-line", borderTop:"1px solid #EDE7D9", paddingTop:12}}>
+              {trendsText}
+            </div>
+          )}
+        </div>
+      )}
+
+      {visibleTestIds.length === 0 ? (
+        <div className="idx-empty">
+          {selectedDate === "all"
+            ? "הוסף/י תוצאות בדיקות דם כדי לראות אילו ערכים חורגים מהטווח התקין, לעקוב אחר מגמות ולבדוק דפוסים אפשריים ביניהם."
+            : `אין תוצאות בתאריך ${selectedDate}.`}
+        </div>
       ) : (
-        testIdsSorted.map(tid => {
+        visibleTestIds.map(tid => {
           const records = grouped[tid];
-          const e = latestByTest[tid];
+          const e = selectedDate === "all" ? latestByTest[tid] : records.find(r => r.date === selectedDate) || latestByTest[tid];
           const test = TEST_MAP[tid];
           const colors = { high: "#B23A48", low: "#2F6690", normal: "#3E7C59", unknown: "#8A8175" };
           const labels = { high: "גבוה מהטווח", low: "נמוך מהטווח", normal: "בטווח תקין", unknown: "לא ניתן לחשב" };
