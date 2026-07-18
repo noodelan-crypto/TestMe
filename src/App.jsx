@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.4.0";
+const APP_VERSION = "3.6.0";
 const APP_UPDATED = "יולי 2026";
 const APP_DEVELOPER = "אריה נודלמן";
 
@@ -898,6 +898,28 @@ const BLOOD = [
     reliability:"תלוי בדיוק המדידה של טסטוסטרון ו-SHBG יחד.", prep:"אין צורך בצום.",
     coverage:"מחושב מתוך בדיקות טסטוסטרון ו-SHBG, אינו בדיקה נפרדת בפני עצמה.",
     related:["testo","shbg"] },
+  { id:"bp_sys", name:"לחץ דם סיסטולי", en:"Blood Pressure — Systolic", unit:"mmHg", range:"90–120",
+    tags:["לחץ דם","blood pressure","יתר לחץ דם","hypertension","סחרחורת","dizziness","כאבי ראש","headache","לב","heart"],
+    topicNote:"הערך הסיסטולי (העליון) משקף את הלחץ בעורקים ברגע שהלב מתכווץ ופולט דם — הוא הרגיש ביותר לגיל ולנוקשות דפנות העורקים, ולכן נוטה לעלות עם הזמן גם כשהדיאסטולי יציב יחסית.",
+    desc:"הלחץ בעורקים בזמן התכווצות הלב (הפעימה עצמה), הערך העליון במדידת לחץ הדם.",
+    high:"יתר לחץ דם — מעלה סיכון לשבץ, אירוע לב ופגיעה כלייתית לאורך זמן. ערכים מעל 180 מהווים מצב חירום הדורש פנייה מיידית.",
+    low:"תת לחץ דם — עלול לגרום לסחרחורת או עילפון, בייחוד בקימה פתאומית.",
+    importance:"אחד המדדים הנפוצים והחשובים ביותר למעקב בריאות הלב וכלי הדם, ונמדד כמעט בכל ביקור רפואי.",
+    reliability:"תוצאה בודדת יכולה להיות מוטית ממתח או 'תסמונת החלוק הלבן' — מומלץ למדוד כמה פעמים במנוחה ובזמנים שונים.",
+    prep:"מומלץ לנוח 5 דקות לפני המדידה, ולהימנע מקפאין ועישון בחצי השעה שקדמה לה.",
+    freq:"מומלץ למדוד לפחות אחת לשנה, ובתדירות גבוהה יותר בנוכחות יתר לחץ דם ידוע.",
+    coverage:"נמדד ללא עלות בכל מרפאה או בבית עם מד לחץ דם ביתי.", related:["bp_dia","ecg"] },
+  { id:"bp_dia", name:"לחץ דם דיאסטולי", en:"Blood Pressure — Diastolic", unit:"mmHg", range:"60–80",
+    tags:["לחץ דם","blood pressure","יתר לחץ דם","hypertension","סחרחורת","dizziness","לב","heart"],
+    topicNote:"הערך הדיאסטולי (התחתון) משקף את הלחץ בעורקים בין פעימות הלב, כשהשריר רפוי — עלייה בו לבדה שכיחה יותר בגילאים צעירים יותר, בעוד שבגיל מבוגר הסיסטולי נוטה לדומיננטיות רבה יותר.",
+    desc:"הלחץ בעורקים בין התכווצויות הלב (מנוחת השריר), הערך התחתון במדידת לחץ הדם.",
+    high:"יתר לחץ דם דיאסטולי — קשור לעומס מתמשך על העורקים, ולעיתים מהווה סימן מוקדם יותר מהסיסטולי בגילאים צעירים.",
+    low:"תת לחץ דם דיאסטולי, לעיתים בנוכחות סיסטולי גבוה — עלול להעיד על נוקשות עורקים ולדרוש בירור.",
+    importance:"נמדד תמיד יחד עם הסיסטולי, ותורם להערכה מלאה של עומס הלב על מערכת העורקים.",
+    reliability:"כפוף לאותם גורמי הטיה כמו הסיסטולי — עדיף למדוד כמה פעמים במנוחה.",
+    prep:"מומלץ לנוח 5 דקות לפני המדידה, ולהימנע מקפאין ועישון בחצי השעה שקדמה לה.",
+    freq:"נמדד תמיד יחד עם לחץ הדם הסיסטולי.",
+    coverage:"נמדד ללא עלות בכל מרפאה או בבית עם מד לחץ דם ביתי.", related:["bp_sys","ecg"] },
 ];
 
 /* =========================================================
@@ -1955,6 +1977,20 @@ function parseBulkText(text, defaultDate) {
     // Only treat a leading "-" as a minus sign if it's not glued directly to a
     // letter (e.g. "LDL-105" is a separator, not negative 105; "-5.2" at the
     // start of a line, or after whitespace/colon, is a genuine negative value).
+
+    // לחץ דם נכתב תמיד כזוג ערכים בפורמט "120/80" — מזוהה ומפוצל לשתי רשומות (סיסטולי/דיאסטולי) בבת אחת
+    const bpMatch = line.match(/(\d{2,3})\s*\/\s*(\d{2,3})(?!\d)/);
+    if (bpMatch) {
+      const sys = parseFloat(bpMatch[1]), dia = parseFloat(bpMatch[2]);
+      const restOfLine = line.replace(bpMatch[0], " ").trim();
+      const looksLikeBP = !restOfLine || /לחץ|דם|bp|pressure|blood/i.test(restOfLine);
+      if (looksLikeBP && sys > dia) { // סיסטולי תמיד גבוה מדיאסטולי — מונע זיהוי שגוי של יחסים אחרים בפורמט X/Y
+        matched.push({ testId: "bp_sys", value: sys, status: evaluateEntry(TEST_MAP["bp_sys"], sys), date: currentDate });
+        matched.push({ testId: "bp_dia", value: dia, status: evaluateEntry(TEST_MAP["bp_dia"], dia), date: currentDate });
+        continue;
+      }
+    }
+
     const numMatch = line.match(/(?<![A-Za-zא-ת])-?\d+(\.\d+)?(?!.*\d)/);
     if (!numMatch) { unmatched.push(line); continue; }
     const value = parseFloat(numMatch[0]);
@@ -2215,6 +2251,9 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.6.0</b> — כפתור "הוספת בדיקה בודדת" ידני נעשה תמיד גלוי ובולט (במקום זמין רק כברירת מחדל אחרי חיפוש כושל), וכפתור הייבוא המרובה הודגש באותו סגנון — קל יותר לראות היכן מוסיפים תוצאות.<br/>
+            <b>3.5.1</b> — לחץ דם מזוהה עכשיו גם כזוג ערכים בפורמט "120/80" בעברית ובאנגלית, מתוך תמונה או טקסט חופשי, ומתפצל אוטומטית לסיסטולי ודיאסטולי.<br/>
+            <b>3.5.0</b> — נוספה בדיקת לחץ דם (סיסטולי ודיאסטולי) למאגר, עם טווחי ייחוס וזיהוי אוטומטי מטקסט ותמונה.<br/>
             <b>3.4.0</b> — נוספה תצוגה לפי תאריך בדיקה (בחירה בין תאריכים שהוזנו), וניתוח AI מצטבר חדש שמזהה מגמות בכל בדיקה לאורך זמן וקשרים אפשריים בין בדיקות שונות.<br/>
             <b>3.3.0</b> — נוסף חשבון אישי: הרשמה/התחברות, גיבוי ותוצאות אישיות בענן (מתאושש מכל מכשיר), ושחזור שם משתמש/סיסמה באימייל. התוצאות נשמרות עכשיו גם מקומית בין ביקורים, לא רק בזיכרון הדפדפן הזמני.<br/>
             <b>3.2.1</b> — תיקון בלבול בהעלאת קובץ טקסט/CSV/PDF וצילום דוח: הייבוא האוטומטי כבר קרה בלחיצה אחת, אך כפתור "הוסף מהטקסט" נשאר פעיל ונראה כמו שלב נוסף נדרש. עכשיו הכפתור משתנה ל"✓ יובא כבר" ונחסם אוטומטית לאחר ייבוא מוצלח, עד שהטקסט בתיבה משתנה ידנית.<br/>
@@ -2580,6 +2619,7 @@ function MyResults({ entries, setEntries }) {
   const [quickText, setQuickText] = useState("");
   const [quickFeedback, setQuickFeedback] = useState(null);
   const [showManualFallback, setShowManualFallback] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
   const [manualId, setManualId] = useState(BLOOD[0].id);
   const [manualValue, setManualValue] = useState("");
   const [showCorr, setShowCorr] = useState(false);
@@ -3063,11 +3103,28 @@ function MyResults({ entries, setEntries }) {
         )}
       </div>
 
-      <div style={{display:"flex", gap:8, marginBottom: bulkOpen ? 10 : 16}}>
-        <span className="idx-chip" style={{cursor:"pointer"}} onClick={() => setBulkOpen(o => !o)}>
-          {bulkOpen ? "סגור ייבוא מרובה ▲" : "➕ הוספת כמה בדיקות בבת אחת / קובץ ▼"}
-        </span>
+      <div style={{display:"flex", gap:8, marginBottom: (bulkOpen || manualOpen) ? 10 : 16, flexWrap:"wrap"}}>
+        <button className="idx-add-btn" style={{flex:1, minWidth:150, borderRadius:9, padding:"9px 0"}} onClick={() => { setBulkOpen(o => !o); setManualOpen(false); }}>
+          {bulkOpen ? "✕ סגור ייבוא מרובה" : "➕ הוספת כמה בדיקות / קובץ"}
+        </button>
+        <button className="idx-add-btn" style={{flex:1, minWidth:150, borderRadius:9, padding:"9px 0"}} onClick={() => { setManualOpen(o => !o); setBulkOpen(false); }}>
+          {manualOpen ? "✕ סגור הוספה ידנית" : "✎ הוספת בדיקה בודדת"}
+        </button>
       </div>
+
+      {manualOpen && (
+        <div className="idx-block" style={{marginBottom:14}}>
+          <div className="idx-block-label">בחר/י בדיקה מהרשימה והזן/י ערך</div>
+          <div style={{display:"flex", gap:6, marginTop:8}}>
+            <select className="idx-select" style={{flex:1.4}} value={manualId} onChange={e => setManualId(e.target.value)}>
+              {BLOOD.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+            <input className="idx-value-input" style={{flex:1, width:0}} placeholder="ערך" value={manualValue}
+              onChange={e => setManualValue(e.target.value)} inputMode="decimal" />
+            <button className="idx-add-btn" onClick={manualAdd}><Plus size={18}/></button>
+          </div>
+        </div>
+      )}
 
       {bulkOpen && (
         <div className="idx-block" style={{marginBottom: 14}}>
@@ -3077,11 +3134,13 @@ function MyResults({ entries, setEntries }) {
             <br/><br/>
             <b>כמה תאריכים בהדבקה אחת:</b> אפשר לשים שורת תאריך בפני עצמה (למשל <code>29.06.2025</code>) לפני כל קבוצת תוצאות — כל מה שמתחתיה יישמר עם התאריך הזה, עד לשורת תאריך הבאה:
             <br/><code>29.06.2025<br/>Glucose 98<br/>Urea 27.8<br/><br/>25.09.2025<br/>Glucose 114<br/>Urea 33.5</code>
+            <br/><br/>
+            <b>לחץ דם:</b> תמיד כזוג ערכים עם לוכסן, בעברית או באנגלית — לדוגמה <code>לחץ דם 120/80</code> או <code>blood pressure 120/80</code>. זה מתפצל אוטומטית לסיסטולי ודיאסטולי כשתי בדיקות נפרדות.
           </div>
           <textarea
             value={bulkText}
             onChange={e => setBulkText(e.target.value)}
-            placeholder="הדבק כאן..."
+            placeholder="הדבק כאן... (למשל: לחץ דם 120/80)"
             rows={6}
             style={{width:"100%", boxSizing:"border-box", fontFamily:"Assistant, sans-serif", fontSize:13.5, borderRadius:9, border:"1px solid #E7E1D4", padding:9, direction:"rtl", resize:"vertical"}}
           />
