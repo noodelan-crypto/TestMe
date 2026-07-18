@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.6.0";
+const APP_VERSION = "3.7.0";
 const APP_UPDATED = "יולי 2026";
 const APP_DEVELOPER = "אריה נודלמן";
 
@@ -1717,8 +1717,8 @@ const PANELS = [
     blurb:"עייפות כרונית קשורה לעיתים קרובות לאנמיה, אך גם לחוסרים בברזל, B12, ויטמין D ולתפקוד לקוי של בלוטת התריס — לכן כדאי לבדוק את כל האשכול יחד ולא רק המוגלובין בודד.",
     testIds:["hgb","hct","mcv","rdw","ferritin","iron","tibc","transferrin","b12","folate","tsh","vitd"] },
   { id:"heart", title:"בריאות הלב / סיכון קרדיווסקולרי", matchTags:["לב","heart","קרדיווסקולרי","cardiovascular","כאבי חזה","chest pain"],
-    blurb:"הערכת סיכון לב מלאה חורגת מכולסטרול רגיל — כוללת גם את חלקיקי ה-LDL בפועל (ApoB), את הגורם הגנטי Lp(a), וסמן דלקתי, לצד בדיקות תפקודיות של הלב עצמו.",
-    testIds:["tchol","ldl","hdl","tg","apob","apoa1","lpa","ldl_particle","crp","homocysteine","ecg","stress","echo","cac"] },
+    blurb:"הערכת סיכון לב מלאה חורגת מכולסטרול רגיל — כוללת גם את חלקיקי ה-LDL בפועל (ApoB), את הגורם הגנטי Lp(a), וסמן דלקתי, לצד בדיקות תפקודיות של הלב עצמו. חשוב לדעת: Lp(a) נקבע גנטית ואינו מושפע כמעט מתזונה, פעילות גופנית או משקל — כך שגם אדם רזה, צמחוני וספורטיבי יכול לשאת רמה גבוהה מבלי לדעת, כי בדיקות שומנים שגרתיות לא מזהות אותה כלל. וגם ציון סידן כלילי (CAC) יכול להטעות: הוא מזהה רק פלאק שכבר הסתייד, ולכן CAC של 0 אינו שולל בהכרח פלאק 'רך' לא-מסויד — במיוחד אצל מי שנושא סיכון גנטי כמו Lp(a) גבוה, שבו הפלאק עלול להיות עדיין לא מסויד. CT אנגיוגרפיה כלילית (הידועה גם כ'צנתור וירטואלי') היא הבדיקה שיכולה לראות גם את הפלאק הרך הזה, ולכן משלימה את התמונה כשיש חשד או גורמי סיכון בלתי מוסברים.",
+    testIds:["tchol","ldl","hdl","tg","apob","apoa1","lpa","ldl_particle","crp","homocysteine","ecg","stress","echo","cac","ct_angio"] },
   { id:"liver", title:"תפקודי כבד", matchTags:["כבד","liver","תפקודי כבד","liver function"],
     blurb:"תפקודי כבד נבדקים כמכלול — כל אנזים בודד מספר סיפור אחר (פגיעת תאים לעומת חסימת מרה), ולכן חשוב לראות את כולם יחד.",
     testIds:["alt","ast","ggt","alp","tbil","dbil","alb","tp","us_abd"] },
@@ -2251,6 +2251,7 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.7.0</b> — נוסף כפתור ניקוי וכיווץ/הרחבה לתיבת ההדבקה (למסמכים ארוכים), אזהרת כפילות ערכים, טיפ להיעזרות ב-AI חיצוני לעיבוד מסמכים מסורבלים, והרחבת ההסבר על Lp(a)‏, ApoB, CAC וצנתור וירטואלי (CT אנגיו) בפאנל בריאות הלב.<br/>
             <b>3.6.0</b> — כפתור "הוספת בדיקה בודדת" ידני נעשה תמיד גלוי ובולט (במקום זמין רק כברירת מחדל אחרי חיפוש כושל), וכפתור הייבוא המרובה הודגש באותו סגנון — קל יותר לראות היכן מוסיפים תוצאות.<br/>
             <b>3.5.1</b> — לחץ דם מזוהה עכשיו גם כזוג ערכים בפורמט "120/80" בעברית ובאנגלית, מתוך תמונה או טקסט חופשי, ומתפצל אוטומטית לסיסטולי ודיאסטולי.<br/>
             <b>3.5.0</b> — נוספה בדיקת לחץ דם (סיסטולי ודיאסטולי) למאגר, עם טווחי ייחוס וזיהוי אוטומטי מטקסט ותמונה.<br/>
@@ -2629,6 +2630,7 @@ function MyResults({ entries, setEntries }) {
   const [expandedTest, setExpandedTest] = useState(null);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkText, setBulkText] = useState("");
+  const [bulkCollapsed, setBulkCollapsed] = useState(true);
   const [bulkReport, setBulkReport] = useState(null);
   const [lastImportedText, setLastImportedText] = useState("");
   const [isProcessingFile, setIsProcessingFile] = useState(false);
@@ -2690,8 +2692,12 @@ function MyResults({ entries, setEntries }) {
 
   const runBulkImport = (text) => {
     const { matched, unmatched } = parseBulkText(text, testDate);
+    /* זיהוי כפילויות אפשריות: אותה בדיקה עם אותו ערך שכבר קיים (בכל תאריך) — לא חוסם, רק מזהיר */
+    const possibleDupes = matched.filter(m =>
+      entries.some(e => e.testId === m.testId && e.value === m.value && e.date !== m.date)
+    ).map(m => ({ name: TEST_MAP[m.testId]?.name || m.testId, value: m.value, date: m.date }));
     if (matched.length > 0) upsertRecords(matched);
-    setBulkReport({ addedCount: matched.length, unmatched });
+    setBulkReport({ addedCount: matched.length, unmatched, possibleDupes });
     setLastImportedText(text);
     setShowCorr(false);
   };
@@ -3136,12 +3142,20 @@ function MyResults({ entries, setEntries }) {
             <br/><code>29.06.2025<br/>Glucose 98<br/>Urea 27.8<br/><br/>25.09.2025<br/>Glucose 114<br/>Urea 33.5</code>
             <br/><br/>
             <b>לחץ דם:</b> תמיד כזוג ערכים עם לוכסן, בעברית או באנגלית — לדוגמה <code>לחץ דם 120/80</code> או <code>blood pressure 120/80</code>. זה מתפצל אוטומטית לסיסטולי ודיאסטולי כשתי בדיקות נפרדות.
+            <br/><br/>
+            <b>💡 טיפ למסמכים שקשה להדביק:</b> אם הדבקתם קובץ (למשל Word) והטקסט יצא ארוך, מבולגן או לא קריא (קורה במיוחד במסמכי עברית מסוימים) — אפשר לבקש מכל עוזר AI (Claude, ChatGPT וכו׳) לעבד את הדוח שלכם לרשימה פשוטה: תאריך, שם בדיקה, תוצאה — שורה לכל בדיקה — ואז להדביק את מה שהוא מחזיר לכאן. זה כמעט תמיד ייבוא מוצלח יותר ממסמך מקורי מסורבל.
           </div>
+          {bulkText.length > 400 && (
+            <button type="button" onClick={() => setBulkCollapsed(c => !c)}
+              style={{background:"none", border:"none", color:"#8A8175", fontSize:12, cursor:"pointer", padding:"0 0 6px 0", textDecoration:"underline"}}>
+              {bulkCollapsed ? `▾ הצג טקסט מלא (${bulkText.length} תווים)` : "▴ כווץ"}
+            </button>
+          )}
           <textarea
             value={bulkText}
             onChange={e => setBulkText(e.target.value)}
             placeholder="הדבק כאן... (למשל: לחץ דם 120/80)"
-            rows={6}
+            rows={bulkText.length > 400 && bulkCollapsed ? 3 : 6}
             style={{width:"100%", boxSizing:"border-box", fontFamily:"Assistant, sans-serif", fontSize:13.5, borderRadius:9, border:"1px solid #E7E1D4", padding:9, direction:"rtl", resize:"vertical"}}
           />
           <div style={{display:"flex", gap:8, marginTop:8}}>
@@ -3153,6 +3167,12 @@ function MyResults({ entries, setEntries }) {
             >
               {bulkText.trim() && bulkText === lastImportedText ? "✓ יובא כבר — אין צורך בלחיצה נוספת" : "הוסף מהטקסט"}
             </button>
+            {bulkText.trim() && (
+              <button type="button" onClick={() => { setBulkText(""); setBulkReport(null); setBulkCollapsed(false); }}
+                style={{borderRadius:9, padding:"9px 16px", background:"none", border:"1px solid #C97A6B", color:"#C97A6B", cursor:"pointer", fontSize:13.5, whiteSpace:"nowrap"}}>
+                🗑 נקה
+              </button>
+            )}
             <div style={{position:"relative", flex:1}}>
               <button
                 type="button"
@@ -3237,6 +3257,17 @@ function MyResults({ entries, setEntries }) {
                 <div style={{marginTop:6, color:"#8A8175"}}>
                   לא זוהו ({bulkReport.unmatched.length}): {bulkReport.unmatched.join(" · ")}
                   <div style={{marginTop:4}}>אפשר להוסיף אותן ידנית למעלה, בבחירת השם המדויק מהרשימה.</div>
+                </div>
+              )}
+              {bulkReport.possibleDupes && bulkReport.possibleDupes.length > 0 && (
+                <div style={{marginTop:8, padding:"8px 10px", border:"1px solid #D9A441", borderRadius:8, color:"#8A6A1F"}}>
+                  ⚠ ייתכן שזו כפילות — כבר קיים אותו ערך לאותה בדיקה בתאריך אחר:
+                  <ul style={{margin:"4px 0 0", paddingRight:18}}>
+                    {bulkReport.possibleDupes.map((d, i) => (
+                      <li key={i}>{d.name}: {d.value} (בתאריך {d.date})</li>
+                    ))}
+                  </ul>
+                  <div style={{marginTop:4, fontSize:12}}>אם זה אכן דוח שכבר הועלה בעבר, כדאי לבדוק בהיסטוריה של הבדיקה ולמחוק את הרשומה המיותרת.</div>
                 </div>
               )}
             </div>
