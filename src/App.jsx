@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.7.0";
+const APP_VERSION = "3.7.1";
 const APP_UPDATED = "יולי 2026";
 const APP_DEVELOPER = "אריה נודלמן";
 
@@ -2251,6 +2251,7 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.7.1</b> — תוקנה בעיית תצוגה במכשירים אמיתיים: כפתור "אודות" נחתך מחוץ למסך במקרים מסוימים — עכשיו עוטף לשורה חדשה במקום להיחתך.<br/>
             <b>3.7.0</b> — נוסף כפתור ניקוי וכיווץ/הרחבה לתיבת ההדבקה (למסמכים ארוכים), אזהרת כפילות ערכים, טיפ להיעזרות ב-AI חיצוני לעיבוד מסמכים מסורבלים, והרחבת ההסבר על Lp(a)‏, ApoB, CAC וצנתור וירטואלי (CT אנגיו) בפאנל בריאות הלב.<br/>
             <b>3.6.0</b> — כפתור "הוספת בדיקה בודדת" ידני נעשה תמיד גלוי ובולט (במקום זמין רק כברירת מחדל אחרי חיפוש כושל), וכפתור הייבוא המרובה הודגש באותו סגנון — קל יותר לראות היכן מוסיפים תוצאות.<br/>
             <b>3.5.1</b> — לחץ דם מזוהה עכשיו גם כזוג ערכים בפורמט "120/80" בעברית ובאנגלית, מתוך תמונה או טקסט חופשי, ומתפצל אוטומטית לסיסטולי ודיאסטולי.<br/>
@@ -3868,12 +3869,12 @@ function BloodTestIndexInner() {
       <style>{STYLES}</style>
 
       <div className="idx-header">
-        <div style={{display:"flex", alignItems:"flex-start", justifyContent:"space-between"}}>
-          <div>
+        <div style={{display:"flex", alignItems:"flex-start", justifyContent:"space-between", flexWrap:"wrap", rowGap:8}}>
+          <div style={{minWidth:0, flex:"1 1 auto"}}>
             <h1 className="idx-title">TestMe</h1>
             <div className="idx-subtitle">{ALL_TESTS.length} בדיקות · דם · קרדיו · הדמיה · סקר</div>
           </div>
-          <div style={{display:"flex", alignItems:"center", gap:8}}>
+          <div style={{display:"flex", alignItems:"center", gap:8, flexShrink:0}}>
             {auth ? (
               <span style={{fontSize:12, color:"#F7F4EE", opacity:0.85}}>✓ {auth.user}</span>
             ) : (
