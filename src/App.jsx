@@ -16,11 +16,34 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.10.0";
+const APP_VERSION = "3.12.0";
 /* סיסמה חדשה (הרשמה/איפוס): 8+ תווים, לפחות אות אחת וספרה אחת */
 const isStrongPass = (p) => p.length >= 8 && /[a-zA-Zא-ת]/.test(p) && /[0-9]/.test(p);
 const APP_UPDATED = "יולי 2026";
 const APP_DEVELOPER = "אריה נודלמן";
+
+/* נשמר בנפרד מהתחברות כדי שהתנתקות לא תמחק את הידיעה שכבר צורף אימייל לחשבון */
+const KNOWN_EMAIL_USERS_KEY = "testme-known-email-users";
+const normalizeAccountKey = (value) => String(value || "").trim().toLowerCase();
+const looksLikeEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+
+async function readKnownEmailUsers() {
+  try {
+    const r = await window.storage.get(KNOWN_EMAIL_USERS_KEY);
+    const parsed = r?.value ? JSON.parse(r.value) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+async function rememberEmailForUser(user, email = "") {
+  const key = normalizeAccountKey(user);
+  if (!key) return;
+  const known = await readKnownEmailUsers();
+  known[key] = { hasEmail: true, email: String(email || "").trim() };
+  await window.storage.set(KNOWN_EMAIL_USERS_KEY, JSON.stringify(known));
+}
 
 /* =========================================================
    שרת ה-AI (Cloudflare Worker + Gemini) — ניתוח תמונה/טקסט
@@ -1704,11 +1727,11 @@ const RULES = [
    ========================================================= */
 const PANELS = [
   { id:"keto", title:"תזונה קטוגנית / דיאטה דלת פחמימות", matchTags:["קיטו","keto","קטוגנית","דיאטה קטוגנית","low carb","דלת פחמימות"],
-    blurb:"לפני ובמהלך דיאטה קטוגנית או דלת פחמימות משמעותית, כדאי לעקוב אחר פרופיל שומנים (שיכול להשתנות משמעותית), תפקודי כבד וכליות, אלקטרוליטים (עלולים להשתבש בשלב ההסתגלות), וחומצה אורית.",
-    testIds:["gluc","hba1c","insulin","tchol","ldl","hdl","tg","apob","na","k","mg","alt","ast","uric","tsh"] },
+    blurb:"לפני ובמהלך דיאטה קטוגנית או דלת פחמימות משמעותית, כדאי לעקוב אחר פרופיל שומנים (שיכול להשתנות משמעותית), כולל Lp(a) כגורם סיכון גנטי שאינו מופיע בפרופיל השומנים הרגיל, לצד תפקודי כבד וכליות, אלקטרוליטים וחומצה אורית.",
+    testIds:["gluc","hba1c","insulin","tchol","ldl","hdl","tg","apob","lpa","na","k","mg","alt","ast","uric","tsh"] },
   { id:"diabetes", title:"סוכרת / טרום-סוכרת", matchTags:["סוכרת","טרום סוכרת","diabetes","prediabetes","סוכר גבוה"],
-    blurb:"מעקב אחר סוכרת כולל לא רק את רמת הסוכר עצמה, אלא גם את ההשפעות שלה על הלב, הכליות והשומנים בדם — לכן פאנל מלא כולל הרבה מעבר לגלוקוז בלבד.",
-    testIds:["gluc","hba1c","insulin","tg","hdl","ldl","apob","creat","egfr","uric","ogtt","dexa_body_comp"] },
+    blurb:"מעקב אחר סוכרת כולל לא רק את רמת הסוכר עצמה, אלא גם את ההשפעות שלה על הלב, הכליות והשומנים בדם. Lp(a) נוסף לפאנל כגורם סיכון קרדיווסקולרי גנטי שאינו מתגלה בבדיקות השומנים הרגילות.",
+    testIds:["gluc","hba1c","insulin","tg","hdl","ldl","apob","lpa","creat","egfr","uric","ogtt","dexa_body_comp"] },
   { id:"hormones", title:"הורמונים (בלוטת התריס ומין)", matchTags:["הורמונים","hormones","הורמונלי"],
     blurb:"פאנל הורמונלי כללי, המכסה גם את בלוטת התריס וגם הורמוני מין — לרוב נבחרים מתוכו בהתאם לתסמינים הספציפיים.",
     testIds:["tsh","ft4","ft3","tpo","fsh","lh","estradiol","progesterone","testo","prolactin","cortisol"] },
@@ -1739,6 +1762,12 @@ const PANELS = [
   { id:"pregnancy_prep", title:"תכנון הריון", matchTags:["הריון","pregnancy","תכנון הריון","הריון מתוכנן"],
     blurb:"לפני הריון מומלץ לבדוק מאגרי ברזל וויטמינים חיוניים, תפקוד בלוטת התריס, וכן לבצע סקר נשאות גנטית.",
     testIds:["folate","b12","ferritin","tsh","vitd","genetic_carrier","ogtt"] },
+  { id:"vegan", title:"תזונה טבעונית", matchTags:["טבעוני","טבעונית","טבעונות","vegan","plant based","תזונה מהצומח"],
+    blurb:"בתזונה טבעונית חשוב לעקוב במיוחד אחר B12, מאגרי ברזל וספירת דם, חומצה פולית, ויטמין D, סידן ואבץ. אלבומין וחלבון כללי יכולים לסייע בהערכת מצב תזונתי כאשר קיימת ירידה במשקל, חולשה או חשד לצריכת חלבון לא מספקת.",
+    testIds:["hgb","hct","mcv","rdw","ferritin","iron","tibc","transferrin","b12","folate","vitd","ca","zinc","alb","tp","tsh"] },
+  { id:"vegetarian", title:"תזונה צמחונית", matchTags:["צמחוני","צמחונית","צמחונות","vegetarian","lacto ovo","לקטו אובו"],
+    blurb:"בתזונה צמחונית הסיכון לחוסרים בדרך כלל נמוך יותר מאשר בטבעונות, אך עדיין כדאי לעקוב אחר B12, ברזל ומאגרי ברזל, ספירת דם, חומצה פולית, ויטמין D ואבץ — במיוחד כשיש עייפות, נשירת שיער או תפריט מצומצם.",
+    testIds:["hgb","hct","mcv","rdw","ferritin","iron","tibc","b12","folate","vitd","zinc","alb","tp"] },
 ];
 
 
@@ -2081,7 +2110,8 @@ const STYLES = `
     background: #241F1B;
     color: #F7F4EE;
     padding: 22px 18px 18px;
-    position: sticky; top:0; z-index: 20;
+    position: relative;
+    z-index: 20;
   }
   .idx-title {
     font-family: 'Frank Ruhl Libre', serif;
@@ -2125,7 +2155,8 @@ const STYLES = `
   .idx-tab.active { opacity: 1; background: #F7F4EE; color: #241F1B; border-color: transparent; }
   .idx-nav {
     display: flex; background: #FFFFFF; border-bottom: 1px solid #E7E1D4;
-    position: sticky; top: 0; z-index: 15;
+    position: sticky; top: 0; z-index: 40;
+    box-shadow: 0 4px 12px rgba(36,31,27,0.08);
   }
   .idx-nav button {
     flex: 1; padding: 12px 3px; font-family: 'Assistant', sans-serif; font-weight: 700;
@@ -2253,6 +2284,8 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.12.0</b> — תיקון שמירת מצב האימייל לאחר התנתקות והתחברות מחדש, כולל תאימות לתשובת שרת ישנה שאינה מחזירה hasEmail; פאנלי טבעוני וצמחוני הועברו לסוף רשימת הפאנלים.<br/>
+            <b>3.11.0</b> — שורת הלשוניות הראשית נשארת קפואה בראש המסך בזמן גלילה; Lp(a) נוספה לפאנלי הסוכרת והקטו; ונוספו פאנלים ייעודיים לתזונה טבעונית ולתזונה צמחונית.<br/>
             <b>3.10.0</b> — תוקן באג: הרשמת חשבון חדש שמרה בטעות תוצאות בדיקה שהיו כבר באפליקציה. עכשיו חשבון חדש תמיד מתחיל נקי.<br/>
             <b>3.9.0</b> — סיסמאות חדשות (הרשמה/איפוס) דורשות עכשיו 8+ תווים עם אות וספרה, להגנה טובה יותר מפני ניחוש.<br/>
             <b>3.8.0</b> — תוקן באג: האפליקציה המשיכה להציג "אין אימייל" גם אחרי צירוף אימייל מוצלח לחשבון. עכשיו מוצג אישור ברור, וחשבונות קיימים מתעדכנים אוטומטית.<br/>
@@ -3607,7 +3640,7 @@ function BloodTestIndexInner() {
   const [loaded, setLoaded] = useState(false);
 
   /* ─ חשבון אישי ─ */
-  const [auth, setAuth] = useState(null); // {user, token}
+  const [auth, setAuth] = useState(null); // {user, token, hasEmail, email?}
   const [authForm, setAuthForm] = useState({ user: "", pass: "", email: "" });
   const [authMode, setAuthMode] = useState("login"); // login | register | forgot-user | forgot-pass | reset-pass
   const [forgotEmail, setForgotEmail] = useState("");
@@ -3629,15 +3662,31 @@ function BloodTestIndexInner() {
         const a = await window.storage.get("testme-auth");
         if (a?.value) {
           const parsed = JSON.parse(a.value);
-          setAuth(parsed);
-          if (SERVER_URL && parsed.hasEmail === undefined) {
+          const knownUsers = await readKnownEmailUsers();
+          const known = knownUsers[normalizeAccountKey(parsed.user)];
+          const preliminary = {
+            ...parsed,
+            hasEmail: !!parsed.hasEmail || !!parsed.email || !!known?.hasEmail || looksLikeEmail(parsed.user),
+            email: parsed.email || known?.email || (looksLikeEmail(parsed.user) ? parsed.user : ""),
+          };
+          setAuth(preliminary);
+
+          /* מרעננים תמיד מול השרת. אם גרסת השרת הישנה אינה מחזירה hasEmail,
+             נשענים על המידע המקומי הקבוע ולא מציגים שוב בקשה מיותרת. */
+          if (SERVER_URL && preliminary.token) {
             fetch(SERVER_URL.replace(/\/$/, "") + "/auth/me", {
-              method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: parsed.token }),
-            }).then((r) => r.json()).then((d) => {
+              method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: preliminary.token }),
+            }).then((r) => r.json()).then(async (d) => {
               if (d.ok) {
-                const updated = { ...parsed, hasEmail: !!d.hasEmail };
+                const serverEmail = String(d.email || "").trim();
+                const updated = {
+                  ...preliminary,
+                  hasEmail: preliminary.hasEmail || d.hasEmail === true || looksLikeEmail(serverEmail),
+                  email: serverEmail || preliminary.email || "",
+                };
                 setAuth(updated);
-                window.storage.set("testme-auth", JSON.stringify(updated)).catch(() => {});
+                if (updated.hasEmail) await rememberEmailForUser(updated.user, updated.email).catch(() => {});
+                await window.storage.set("testme-auth", JSON.stringify(updated)).catch(() => {});
               }
             }).catch(() => {});
           }
@@ -3697,8 +3746,33 @@ function BloodTestIndexInner() {
       const payload = { user: authForm.user.trim(), pass: authForm.pass };
       if (mode === "register") payload.email = authForm.email.trim();
       const d = await api(mode === "register" ? "/auth/register" : "/auth/login", payload);
-      const a = { user: d.user, token: d.token, hasEmail: mode === "register" ? true : !!d.hasEmail };
+      const accountUser = d.user || authForm.user.trim();
+      const knownUsers = await readKnownEmailUsers();
+      const known = knownUsers[normalizeAccountKey(accountUser)];
+      const registrationEmail = mode === "register" ? authForm.email.trim() : "";
+      let a = {
+        user: accountUser,
+        token: d.token,
+        hasEmail: mode === "register" || d.hasEmail === true || looksLikeEmail(d.email) || !!known?.hasEmail || looksLikeEmail(accountUser),
+        email: String(d.email || registrationEmail || known?.email || (looksLikeEmail(accountUser) ? accountUser : "")).trim(),
+      };
+
+      /* חלק מגרסאות השרת לא החזירו hasEmail בתשובת login.
+         לכן בודקים גם את /auth/me, בלי להפוך ערך אמיתי שכבר ידוע ל-false. */
+      if (mode === "login") {
+        try {
+          const me = await api("/auth/me", { token: d.token });
+          const serverEmail = String(me.email || "").trim();
+          a = {
+            ...a,
+            hasEmail: a.hasEmail || me.hasEmail === true || looksLikeEmail(serverEmail),
+            email: serverEmail || a.email || "",
+          };
+        } catch { /* התחברות עצמה הצליחה; בדיקת פרופיל אינה חוסמת */ }
+      }
+
       setAuth(a);
+      if (a.hasEmail) await rememberEmailForUser(a.user, a.email).catch(() => {});
       if (remember) await window.storage.set("testme-auth", JSON.stringify(a)).catch(() => {});
       if (mode === "login") {
         try {
@@ -3780,9 +3854,11 @@ function BloodTestIndexInner() {
     if (!attachEmailValue.trim() || !attachEmailValue.includes("@")) { setAuthMsg("כתובת אימייל תקינה נדרשת"); return; }
     setAuthBusy(true);
     try {
-      await api("/auth/set-email", { token: auth.token, email: attachEmailValue.trim() });
-      const updated = { ...auth, hasEmail: true };
+      const savedEmail = attachEmailValue.trim();
+      await api("/auth/set-email", { token: auth.token, email: savedEmail });
+      const updated = { ...auth, hasEmail: true, email: savedEmail };
       setAuth(updated);
+      await rememberEmailForUser(updated.user, savedEmail).catch(() => {});
       if (remember) await window.storage.set("testme-auth", JSON.stringify(updated)).catch(() => {});
       setAuthMsg("✓ האימייל צורף לחשבון");
       setAttachEmailValue("");
@@ -4110,7 +4186,7 @@ function BloodTestIndexInner() {
                 <span style={{cursor:"pointer", fontSize:13, color:"#8A8175", textDecoration:"underline"}} onClick={logout}>התנתקות</span>
                 {auth.hasEmail ? (
                   <div style={{marginTop:16, paddingTop:14, borderTop:"1px solid #EDE7D9", fontSize:12.5, color:"#3E7C59"}}>
-                    ✓ יש אימייל רשום לחשבון — שחזור סיסמה/שם משתמש זמין
+                    ✓ יש אימייל רשום לחשבון{auth.email ? ` (${auth.email})` : ""} — שחזור סיסמה/שם משתמש זמין
                   </div>
                 ) : (
                   <div style={{marginTop:16, paddingTop:14, borderTop:"1px solid #EDE7D9"}}>
