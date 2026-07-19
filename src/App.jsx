@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.12.0";
+const APP_VERSION = "3.13.0";
 /* סיסמה חדשה (הרשמה/איפוס): 8+ תווים, לפחות אות אחת וספרה אחת */
 const isStrongPass = (p) => p.length >= 8 && /[a-zA-Zא-ת]/.test(p) && /[0-9]/.test(p);
 const APP_UPDATED = "יולי 2026";
@@ -2284,6 +2284,7 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.13.0</b> — תיקון התנתקות: התוצאות המקומיות במסך "הבדיקות שלי" נמחקות מיד מהמכשיר בעת התנתקות, בלי למחוק את הגיבוי בענן; בהתחברות מחדש ניתן לטעון אותן שוב מהחשבון.<br/>
             <b>3.12.0</b> — תיקון שמירת מצב האימייל לאחר התנתקות והתחברות מחדש, כולל תאימות לתשובת שרת ישנה שאינה מחזירה hasEmail; פאנלי טבעוני וצמחוני הועברו לסוף רשימת הפאנלים.<br/>
             <b>3.11.0</b> — שורת הלשוניות הראשית נשארת קפואה בראש המסך בזמן גלילה; Lp(a) נוספה לפאנלי הסוכרת והקטו; ונוספו פאנלים ייעודיים לתזונה טבעונית ולתזונה צמחונית.<br/>
             <b>3.10.0</b> — תוקן באג: הרשמת חשבון חדש שמרה בטעות תוצאות בדיקה שהיו כבר באפליקציה. עכשיו חשבון חדש תמיד מתחיל נקי.<br/>
@@ -3808,8 +3809,17 @@ function BloodTestIndexInner() {
     finally { setAuthBusy(false); }
   };
   const logout = async () => {
-    setAuth(null); setAuthMsg(null);
-    await window.storage.delete("testme-auth").catch(() => {});
+    /* התנתקות מנקה את המידע האישי מהמכשיר בלבד.
+       הגיבוי בענן של החשבון אינו נמחק, וייטען שוב בהתחברות הבאה. */
+    setAuth(null);
+    setAuthMsg(null);
+    setEntries([]);
+    setSelectedTest(null);
+    setSelectedReason(null);
+    await Promise.all([
+      window.storage.delete("testme-auth").catch(() => {}),
+      window.storage.delete("testme-entries").catch(() => {}),
+    ]);
   };
 
   const doForgotUsername = async () => {
