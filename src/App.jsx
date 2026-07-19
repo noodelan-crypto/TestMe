@@ -16,7 +16,9 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.7.1";
+const APP_VERSION = "3.10.0";
+/* סיסמה חדשה (הרשמה/איפוס): 8+ תווים, לפחות אות אחת וספרה אחת */
+const isStrongPass = (p) => p.length >= 8 && /[a-zA-Zא-ת]/.test(p) && /[0-9]/.test(p);
 const APP_UPDATED = "יולי 2026";
 const APP_DEVELOPER = "אריה נודלמן";
 
@@ -2251,6 +2253,9 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.10.0</b> — תוקן באג: הרשמת חשבון חדש שמרה בטעות תוצאות בדיקה שהיו כבר באפליקציה. עכשיו חשבון חדש תמיד מתחיל נקי.<br/>
+            <b>3.9.0</b> — סיסמאות חדשות (הרשמה/איפוס) דורשות עכשיו 8+ תווים עם אות וספרה, להגנה טובה יותר מפני ניחוש.<br/>
+            <b>3.8.0</b> — תוקן באג: האפליקציה המשיכה להציג "אין אימייל" גם אחרי צירוף אימייל מוצלח לחשבון. עכשיו מוצג אישור ברור, וחשבונות קיימים מתעדכנים אוטומטית.<br/>
             <b>3.7.1</b> — תוקנה בעיית תצוגה במכשירים אמיתיים: כפתור "אודות" נחתך מחוץ למסך במקרים מסוימים — עכשיו עוטף לשורה חדשה במקום להיחתך.<br/>
             <b>3.7.0</b> — נוסף כפתור ניקוי וכיווץ/הרחבה לתיבת ההדבקה (למסמכים ארוכים), אזהרת כפילות ערכים, טיפ להיעזרות ב-AI חיצוני לעיבוד מסמכים מסורבלים, והרחבת ההסבר על Lp(a)‏, ApoB, CAC וצנתור וירטואלי (CT אנגיו) בפאנל בריאות הלב.<br/>
             <b>3.6.0</b> — כפתור "הוספת בדיקה בודדת" ידני נעשה תמיד גלוי ובולט (במקום זמין רק כברירת מחדל אחרי חיפוש כושל), וכפתור הייבוא המרובה הודגש באותו סגנון — קל יותר לראות היכן מוסיפים תוצאות.<br/>
@@ -3622,7 +3627,21 @@ function BloodTestIndexInner() {
       } catch { /* אין נתונים שמורים עדיין */ }
       try {
         const a = await window.storage.get("testme-auth");
-        if (a?.value) setAuth(JSON.parse(a.value));
+        if (a?.value) {
+          const parsed = JSON.parse(a.value);
+          setAuth(parsed);
+          if (SERVER_URL && parsed.hasEmail === undefined) {
+            fetch(SERVER_URL.replace(/\/$/, "") + "/auth/me", {
+              method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: parsed.token }),
+            }).then((r) => r.json()).then((d) => {
+              if (d.ok) {
+                const updated = { ...parsed, hasEmail: !!d.hasEmail };
+                setAuth(updated);
+                window.storage.set("testme-auth", JSON.stringify(updated)).catch(() => {});
+              }
+            }).catch(() => {});
+          }
+        }
       } catch { /* לא מחובר */ }
       setLoaded(true);
     })();
@@ -3670,14 +3689,15 @@ function BloodTestIndexInner() {
   const doAuth = async (mode) => {
     setAuthMsg(null);
     if (!SERVER_URL) { setAuthMsg("אין שרת מחובר כרגע."); return; }
-    if (authForm.user.trim().length < 2 || authForm.pass.length < 4) { setAuthMsg("שם משתמש (2+ תווים) וסיסמה (4+ תווים)"); return; }
+    if (authForm.user.trim().length < 2 || authForm.pass.length < 1) { setAuthMsg("שם משתמש ואת הסיסמה יש למלא"); return; }
+    if (mode === "register" && !isStrongPass(authForm.pass)) { setAuthMsg("הסיסמה חייבת לכלול 8+ תווים, עם לפחות אות אחת וספרה אחת"); return; }
     if (mode === "register" && (!authForm.email.trim() || !authForm.email.includes("@"))) { setAuthMsg("כתובת אימייל תקינה נדרשת"); return; }
     setAuthBusy(true);
     try {
       const payload = { user: authForm.user.trim(), pass: authForm.pass };
       if (mode === "register") payload.email = authForm.email.trim();
       const d = await api(mode === "register" ? "/auth/register" : "/auth/login", payload);
-      const a = { user: d.user, token: d.token };
+      const a = { user: d.user, token: d.token, hasEmail: mode === "register" ? true : !!d.hasEmail };
       setAuth(a);
       if (remember) await window.storage.set("testme-auth", JSON.stringify(a)).catch(() => {});
       if (mode === "login") {
@@ -3687,8 +3707,10 @@ function BloodTestIndexInner() {
           setAuthMsg("✓ מחובר — התוצאות נטענו מהענן");
         } catch { setAuthMsg("✓ מחובר"); }
       } else {
-        await api("/data/save", { token: d.token, data: { entries } }).catch(() => {});
-        setAuthMsg("✓ נרשמת והתוצאות הנוכחיות גובו לענן");
+        /* חשבון חדש מתחיל נקי — לא לוקח איתו תוצאות בדיקה שהיו באפליקציה קודם */
+        setEntries([]);
+        await api("/data/save", { token: d.token, data: { entries: [] } }).catch(() => {});
+        setAuthMsg("✓ נרשמת בהצלחה — חשבון חדש ונקי");
       }
       setAuthForm({ user: "", pass: "", email: "" });
       setAuthMode("login");
@@ -3742,7 +3764,7 @@ function BloodTestIndexInner() {
 
   const doResetPassword = async () => {
     setAuthMsg(null);
-    if (!forgotEmail.trim() || !resetCode.trim() || resetNewPass.length < 4) { setAuthMsg("נדרשים אימייל, קוד וסיסמה חדשה (4+ תווים)"); return; }
+    if (!forgotEmail.trim() || !resetCode.trim() || !isStrongPass(resetNewPass)) { setAuthMsg("נדרשים אימייל, קוד, וסיסמה חדשה של 8+ תווים עם אות וספרה"); return; }
     setAuthBusy(true);
     try {
       await api("/auth/reset-password", { email: forgotEmail.trim(), code: resetCode.trim(), newPass: resetNewPass });
@@ -3759,6 +3781,9 @@ function BloodTestIndexInner() {
     setAuthBusy(true);
     try {
       await api("/auth/set-email", { token: auth.token, email: attachEmailValue.trim() });
+      const updated = { ...auth, hasEmail: true };
+      setAuth(updated);
+      if (remember) await window.storage.set("testme-auth", JSON.stringify(updated)).catch(() => {});
       setAuthMsg("✓ האימייל צורף לחשבון");
       setAttachEmailValue("");
     } catch (e) { setAuthMsg(e.message); }
@@ -4028,8 +4053,9 @@ function BloodTestIndexInner() {
                       value={authForm.user} onChange={e => setAuthForm({ ...authForm, user: e.target.value })} />
                     <input className="idx-value-input" style={{width:"100%", marginBottom:8}} placeholder="אימייל" type="email" autoComplete="email"
                       value={authForm.email} onChange={e => setAuthForm({ ...authForm, email: e.target.value })} />
-                    <input className="idx-value-input" style={{width:"100%", marginBottom:10}} placeholder="סיסמה" type="password" autoComplete="new-password"
+                    <input className="idx-value-input" style={{width:"100%", marginBottom:4}} placeholder="סיסמה" type="password" autoComplete="new-password"
                       value={authForm.pass} onChange={e => setAuthForm({ ...authForm, pass: e.target.value })} />
+                    <div style={{fontSize:11.5, color:"#8A8175", marginBottom:10}}>8+ תווים, עם לפחות אות אחת וספרה אחת</div>
                     <div style={{display:"flex", gap:8}}>
                       <button className="idx-add-btn" style={{flex:1, borderRadius:9, padding:"9px 0"}} disabled={authBusy} onClick={() => doAuth("register")}>הרשמה</button>
                       <span style={{cursor:"pointer", fontSize:13, color:"#8A8175", alignSelf:"center"}} onClick={() => setAuthMode("login")}>חזרה להתחברות</span>
@@ -4082,14 +4108,20 @@ function BloodTestIndexInner() {
                   <button className="idx-add-btn" style={{flex:1, borderRadius:9, padding:"9px 0", fontSize:13}} disabled={authBusy} onClick={cloudLoad}>⬇ טעינה מהענן</button>
                 </div>
                 <span style={{cursor:"pointer", fontSize:13, color:"#8A8175", textDecoration:"underline"}} onClick={logout}>התנתקות</span>
-                <div style={{marginTop:16, paddingTop:14, borderTop:"1px solid #EDE7D9"}}>
-                  <div style={{fontSize:12.5, color:"#8A8175", marginBottom:8}}>לא רשום אימייל לחשבון זה — נדרש לשחזור עתידי:</div>
-                  <div style={{display:"flex", gap:8}}>
-                    <input className="idx-value-input" style={{flex:1}} placeholder="הוסף אימייל לחשבון" type="email"
-                      value={attachEmailValue} onChange={e => setAttachEmailValue(e.target.value)} />
-                    <button className="idx-add-btn" style={{padding:"0 16px", fontSize:13}} disabled={authBusy} onClick={attachEmail}>שמירה</button>
+                {auth.hasEmail ? (
+                  <div style={{marginTop:16, paddingTop:14, borderTop:"1px solid #EDE7D9", fontSize:12.5, color:"#3E7C59"}}>
+                    ✓ יש אימייל רשום לחשבון — שחזור סיסמה/שם משתמש זמין
                   </div>
-                </div>
+                ) : (
+                  <div style={{marginTop:16, paddingTop:14, borderTop:"1px solid #EDE7D9"}}>
+                    <div style={{fontSize:12.5, color:"#8A8175", marginBottom:8}}>לא רשום אימייל לחשבון זה — נדרש לשחזור עתידי:</div>
+                    <div style={{display:"flex", gap:8}}>
+                      <input className="idx-value-input" style={{flex:1}} placeholder="הוסף אימייל לחשבון" type="email"
+                        value={attachEmailValue} onChange={e => setAttachEmailValue(e.target.value)} />
+                      <button className="idx-add-btn" style={{padding:"0 16px", fontSize:13}} disabled={authBusy} onClick={attachEmail}>שמירה</button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             {authMsg && (
