@@ -37,3 +37,9 @@ android/.idea/
 # iOS (if added later)
 ios/App/Pods/
 ios/App/build/
+.firebase/
+.gradle/
+*.jks
+*.keystore
+key.properties
+local.properties
