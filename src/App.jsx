@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.15.2";
+const APP_VERSION = "3.16.0";
 /* סיסמה חדשה (הרשמה/איפוס): 8+ תווים, לפחות אות אחת וספרה אחת */
 const isStrongPass = (p) => p.length >= 8 && /[a-zA-Zא-ת]/.test(p) && /[0-9]/.test(p);
 const APP_UPDATED = "יולי 2026";
@@ -1243,6 +1243,223 @@ async function analyzeTextOnServer(query) {
   const data = await r.json();
   if (data.error) throw new Error(data.error);
   return data.text;
+}
+
+/* =========================================================
+   FILE EXPORT — Web + Capacitor Android
+   ========================================================= */
+const WELCOME_STORAGE_KEY = "testme-hide-welcome-kiosk";
+
+function isNativeApp() {
+  try {
+    return Boolean(window?.Capacitor?.isNativePlatform?.() || window?.Capacitor?.getPlatform?.() === "android");
+  } catch {
+    return false;
+  }
+}
+
+function safeFilePart(value) {
+  return String(value || "TestMe")
+    .replace(/[\/:*?"<>|]+/g, "-")
+    .replace(/\s+/g, "_")
+    .slice(0, 80);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function utf8ToBase64(text) {
+  const bytes = new TextEncoder().encode(String(text));
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+function browserDownload(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    a.remove();
+  }, 1500);
+}
+
+async function saveOrShareFile({ content, fileName, mimeType, title }) {
+  const payloadContent = mimeType.includes("text/plain") ? `\uFEFF${content}` : content;
+  const blob = new Blob([payloadContent], { type: mimeType });
+  const native = isNativeApp();
+  const plugins = window?.Capacitor?.Plugins || {};
+  const registerPlugin = window?.Capacitor?.registerPlugin;
+  const Filesystem = plugins.Filesystem || (registerPlugin ? registerPlugin("Filesystem") : null);
+  const Share = plugins.Share || (registerPlugin ? registerPlugin("Share") : null);
+
+  /* Native Capacitor path: save a real file under Documents/TestMe and then
+     offer the Android share sheet. This avoids relying on <a download>, which
+     many Android WebViews ignore. */
+  if (native && Filesystem?.writeFile) {
+    try {
+      const result = await Filesystem.writeFile({
+        path: `TestMe/${fileName}`,
+        data: utf8ToBase64(payloadContent),
+        directory: "DOCUMENTS",
+        recursive: true,
+      });
+      if (Share?.share && result?.uri) {
+        await Share.share({
+          title: title || fileName,
+          text: "קובץ שיוצא מאפליקציית TestMe",
+          url: result.uri,
+          dialogTitle: "שמירה או שיתוף הקובץ",
+        });
+        return { mode: "saved-and-shared", uri: result.uri };
+      }
+      return { mode: "saved", uri: result?.uri };
+    } catch {
+      /* Continue to Web Share / browser fallback below. */
+    }
+  }
+
+  /* Android Web Share fallback. It creates a real File object and opens the
+     native chooser, allowing saving to Files/Drive or sending to another app. */
+  if (native && typeof File !== "undefined" && navigator.share) {
+    try {
+      const file = new File([blob], fileName, { type: mimeType, lastModified: Date.now() });
+      const shareData = { title: title || fileName, text: "קובץ שיוצא מאפליקציית TestMe", files: [file] };
+      if (!navigator.canShare || navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        return { mode: "shared" };
+      }
+    } catch (err) {
+      if (err?.name === "AbortError") return { mode: "cancelled" };
+    }
+  }
+
+  /* Standard website download. */
+  browserDownload(blob, fileName);
+  return { mode: "downloaded" };
+}
+
+function exportResultMessage(result) {
+  if (result?.mode === "saved-and-shared") return "הקובץ נשמר ונפתח חלון השיתוף של Android.";
+  if (result?.mode === "saved") return "הקובץ נשמר בתיקיית Documents/TestMe במכשיר.";
+  if (result?.mode === "shared") return "נפתח חלון השמירה/השיתוף של Android.";
+  if (result?.mode === "cancelled") return "השמירה או השיתוף בוטלו.";
+  return "הקובץ הורד בהצלחה.";
+}
+
+function getProcedureText(test) {
+  if (test?.procedure) return test.procedure;
+  const haystack = `${test?.name || ""} ${test?.en || ""}`.toLowerCase();
+  if (/שתן|urine|microalbumin|albumin\/creatinine/.test(haystack)) {
+    return "הבדיקה מתבצעת באמצעות מסירת דגימת שתן נקייה למעבדה, בדרך כלל במכל ייעודי. לעיתים נדרשת דגימת בוקר ראשונה או איסוף שתן לפי הנחיית המעבדה.";
+  }
+  if (/צואה|stool|fecal|calprotectin/.test(haystack)) {
+    return "הבדיקה מתבצעת באמצעות איסוף דגימת צואה קטנה למכל ייעודי ומסירתה למעבדה בהתאם להוראות השמירה וההובלה.";
+  }
+  if (test?.category === "blood") {
+    return `הבדיקה מתבצעת באמצעות דגימת דם מווריד, הנלקחת בדרך כלל מהזרוע ונשלחת למעבדה. ${test?.prep || "ברוב המקרים אין הכנה מיוחדת, אלא אם ניתנה הנחיה אחרת."}`;
+  }
+  if (test?.category === "cardio") {
+    return "הבדיקה מתבצעת במרפאה או במכון ייעודי באמצעות מדידה או רישום של פעילות הלב וכלי הדם. אופן הביצוע המדויק משתנה לפי סוג הבדיקה, ולעיתים כולל חיבור חיישנים, שרוול לחץ דם או מאמץ מבוקר.";
+  }
+  if (test?.category === "imaging") {
+    return "הבדיקה מתבצעת במכון הדמיה באמצעות המכשיר המתאים לסוג הבדיקה. המטופל מתבקש לשכב או לעמוד בתנוחה מוגדרת, ולעיתים נעשה שימוש בחומר ניגוד לפי שיקול רפואי.";
+  }
+  return "הבדיקה מתבצעת במסגרת רפואית מתאימה לפי סוג הסקר, באמצעות תשאול, מדידה, בדיקה גופנית או נטילת דגימה. ההנחיות המדויקות נמסרות בעת קביעת התור.";
+}
+
+function panelTextContent(panel) {
+  const primaryTests = (panel.testIds || []).map(id => TEST_MAP[id]).filter(Boolean);
+  const optionalTests = (panel.optionalTestIds || []).map(id => TEST_MAP[id]).filter(Boolean);
+  const lines = [
+    `TestMe v${APP_VERSION}`,
+    `פאנל מומלץ: ${panel.title}`,
+    `תאריך ייצוא: ${new Date().toLocaleDateString("he-IL")}`,
+    "",
+    panel.blurb,
+    "",
+    `בדיקות מומלצות (${primaryTests.length}):`,
+  ];
+  const appendTests = (tests, startIndex = 0) => {
+    tests.forEach((test, index) => {
+      lines.push("");
+      lines.push(`${startIndex + index + 1}. ${test.name}${test.en ? ` (${test.en})` : ""}`);
+      if (test.range) lines.push(`טווח ייחוס: ${test.range}${test.unit ? ` ${test.unit}` : ""}`);
+      lines.push(`מה הבדיקה בודקת: ${test.desc || test.what || "מידע בסיסי אינו זמין."}`);
+      lines.push(`כיצד מתבצעת: ${getProcedureText(test)}`);
+      if (test.importance) lines.push(`חשיבות: ${test.importance}`);
+      if (test.prep) lines.push(`הכנה: ${test.prep}`);
+    });
+  };
+  appendTests(primaryTests);
+  if (optionalTests.length) {
+    lines.push("", panel.optionalLabel || "בדיקות נוספות לפי צורך והערכת רופא/ה:");
+    appendTests(optionalTests, primaryTests.length);
+  }
+  lines.push("");
+  lines.push("המידע כללי ואינו מהווה אבחנה, המלצה רפואית או תחליף לייעוץ רפואי.");
+  return lines.join("\n");
+}
+
+function panelWordContent(panel) {
+  const primaryTests = (panel.testIds || []).map(id => TEST_MAP[id]).filter(Boolean);
+  const optionalTests = (panel.optionalTestIds || []).map(id => TEST_MAP[id]).filter(Boolean);
+  const renderRows = (tests, startIndex = 0) => tests.map((test, index) => `
+    <h2>${startIndex + index + 1}. ${escapeHtml(test.name)}${test.en ? ` <span class="en">(${escapeHtml(test.en)})</span>` : ""}</h2>
+    ${test.range ? `<p><b>טווח ייחוס:</b> ${escapeHtml(test.range)} ${escapeHtml(test.unit || "")}</p>` : ""}
+    <p><b>מה הבדיקה בודקת:</b> ${escapeHtml(test.desc || test.what || "מידע בסיסי אינו זמין.")}</p>
+    <p><b>כיצד מתבצעת:</b> ${escapeHtml(getProcedureText(test))}</p>
+    ${test.importance ? `<p><b>חשיבות:</b> ${escapeHtml(test.importance)}</p>` : ""}
+    ${test.prep ? `<p><b>הכנה:</b> ${escapeHtml(test.prep)}</p>` : ""}
+  `).join("<hr/>");
+  const optionalSection = optionalTests.length
+    ? `<h1 class="section-title">${escapeHtml(panel.optionalLabel || "בדיקות נוספות לפי צורך והערכת רופא/ה")}</h1>${renderRows(optionalTests, primaryTests.length)}`
+    : "";
+  return `<!doctype html><html dir="rtl" lang="he"><head><meta charset="utf-8"><title>${escapeHtml(panel.title)}</title>
+    <style>body{font-family:Arial,sans-serif;direction:rtl;line-height:1.65;margin:36px;color:#241F1B}h1{color:#8E2F40}h2{font-size:18px;margin-bottom:6px}.section-title{font-size:21px;margin-top:30px;padding-top:14px;border-top:2px solid #8E2F40}.en{font-size:13px;color:#666;font-weight:normal}p{margin:4px 0}hr{border:0;border-top:1px solid #ddd;margin:18px 0}.note{margin-top:28px;padding:12px;background:#f4f1ea;font-size:12px}</style>
+    </head><body><h1>${escapeHtml(panel.title)}</h1><p>${escapeHtml(panel.blurb)}</p><p><b>TestMe v${APP_VERSION}</b> · תאריך ייצוא: ${escapeHtml(new Date().toLocaleDateString("he-IL"))}</p><hr/>${renderRows(primaryTests)}${optionalSection}<div class="note">המידע כללי ואינו מהווה אבחנה, המלצה רפואית או תחליף לייעוץ רפואי.</div></body></html>`;
+}
+
+function myResultsTextContent(entries) {
+  const statusLabel = { high: "גבוה מהטווח", low: "נמוך מהטווח", normal: "בטווח תקין", unknown: "לא ניתן לחשב" };
+  const sorted = [...entries].sort((a, b) => {
+    const dateCompare = (b.date || "").localeCompare(a.date || "");
+    if (dateCompare) return dateCompare;
+    return (TEST_MAP[a.testId]?.name || a.testId).localeCompare(TEST_MAP[b.testId]?.name || b.testId, "he");
+  });
+  const lines = [
+    "TestMe — כל המדידות ב'בדיקות שלי'",
+    `גרסת האפליקציה: ${APP_VERSION}`,
+    `תאריך ייצוא: ${new Date().toLocaleString("he-IL")}`,
+    `מספר מדידות: ${sorted.length}`,
+    "",
+  ];
+  sorted.forEach((entry, index) => {
+    const test = TEST_MAP[entry.testId];
+    const status = entry.status || (test ? evaluateEntry(test, Number(entry.value)) : "unknown");
+    lines.push(`${index + 1}. ${test?.name || entry.testId}`);
+    lines.push(`תאריך: ${entry.date || "לא צוין"}`);
+    lines.push(`תוצאה: ${entry.value}${test?.unit ? ` ${test.unit}` : ""}`);
+    if (test?.range) lines.push(`טווח ייחוס: ${test.range}`);
+    lines.push(`סטטוס: ${statusLabel[status] || statusLabel.unknown}`);
+    lines.push("");
+  });
+  lines.push("הקובץ נוצר אוטומטית. הוא אינו מהווה אבחנה או המלצה רפואית.");
+  return lines.join("\n");
 }
 
 /* =========================================================
@@ -3268,6 +3485,9 @@ const STYLES = `
     70% { box-shadow: 0 0 0 8px rgba(178,58,72,0); }
     100% { box-shadow: 0 0 0 0 rgba(178,58,72,0); }
   }
+  @keyframes kioskFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  @keyframes loadingDot { 0%,80%,100% { opacity:.25; transform:scale(.75); } 40% { opacity:1; transform:scale(1); } }
+  @keyframes splashIn { from { opacity:0; } to { opacity:1; } }
 
   .idx-root {
     direction: rtl;
@@ -3367,14 +3587,22 @@ const STYLES = `
   .idx-dot { width:8px; height:8px; border-radius:50%; flex:none; margin-left:8px; }
 
   .idx-detail {
-    position: absolute; inset: 0; min-height: 100%; max-width: 480px; margin: 0 auto;
-    background: #F7F4EE; z-index: 50;
+    position: fixed; inset: 0; height: 100vh; height: 100dvh; max-width: 480px; margin: 0 auto;
+    background: #F7F4EE; z-index: 50; overflow-y: auto; overscroll-behavior: contain;
     animation: slideUp 0.22s ease-out;
   }
   @keyframes slideUp { from { transform: translateY(16px); opacity:0;} to { transform: translateY(0); opacity:1;} }
-  .idx-detail-head {
-    padding: 18px; color:#F7F4EE; position: sticky; top:0;
+  .idx-detail-sticky-shell {
+    position: sticky; top: 0; z-index: 12; box-shadow: 0 5px 14px rgba(36,31,27,0.12);
   }
+  .idx-detail-head {
+    padding: 18px; color:#F7F4EE; position: relative;
+  }
+  .idx-detail-tabs {
+    display:flex; gap:8px; padding:9px 14px; background:#FFF; border-bottom:1px solid #E7E1D4;
+    overflow-x:auto; scrollbar-width:none;
+  }
+  .idx-detail-tabs::-webkit-scrollbar { display:none; }
   .idx-detail-back {
     display:flex; align-items:center; gap:6px; background:rgba(247,244,238,0.15);
     border:none; color:#F7F4EE; padding:6px 10px; border-radius: 8px; font-size:13px; cursor:pointer; margin-bottom: 14px;
@@ -3430,6 +3658,31 @@ const STYLES = `
   .idx-corr-title { font-weight:700; font-size:14px; color:#8A4B1E; display:flex; align-items:center; gap:6px; }
   .idx-corr-msg { font-size:13.5px; line-height:1.55; color:#4A3B29; margin-top:6px; }
   .idx-empty { text-align:center; color:#8A8175; font-size:13.5px; padding: 34px 20px; }
+  .idx-export-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .idx-export-btn {
+    flex:1; min-width:120px; border:1px solid #2F6690; background:#EEF4F8; color:#244F70;
+    border-radius:9px; padding:9px 10px; font-family:'Assistant',sans-serif; font-weight:700; cursor:pointer;
+  }
+  .idx-danger-btn {
+    flex:1; min-width:140px; border:1px solid #B23A48; background:#FFF3F0; color:#9D3040;
+    border-radius:9px; padding:9px 10px; font-family:'Assistant',sans-serif; font-weight:700; cursor:pointer;
+  }
+  .idx-export-feedback { font-size:12.5px; color:#3E7C59; margin-top:8px; }
+  .idx-splash {
+    position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center;
+    padding:18px; background:linear-gradient(160deg,#241F1B 0%,#4A4038 54%,#7A5E52 100%);
+    animation:splashIn .25s ease-out;
+  }
+  .idx-splash-card {
+    width:min(410px,100%); background:#F7F4EE; border-radius:24px; padding:22px 20px 18px;
+    box-shadow:0 24px 70px rgba(0,0,0,.34); text-align:center; color:#241F1B;
+  }
+  .idx-kiosk-illustration { width:210px; max-width:70vw; margin:0 auto 8px; animation:kioskFloat 2.4s ease-in-out infinite; }
+  .idx-splash-title { font-family:'Frank Ruhl Libre',serif; font-weight:900; font-size:25px; margin:4px 0 8px; }
+  .idx-splash-text { font-size:14px; line-height:1.6; color:#5B5346; }
+  .idx-loading-dots { display:flex; justify-content:center; gap:7px; margin:13px 0; }
+  .idx-loading-dots span { width:8px; height:8px; border-radius:50%; background:#B23A48; animation:loadingDot 1.15s infinite ease-in-out; }
+  .idx-loading-dots span:nth-child(2){animation-delay:.16s}.idx-loading-dots span:nth-child(3){animation-delay:.32s}
 `;
 
 /* =========================================================
@@ -3468,6 +3721,7 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.16.0</b> — מסך פתיחה חדש לקיוסק, פתיחת כל בדיקה מראש העמוד, לשוניות מידע/הקשר קבועות בגלילה, הסבר כיצד כל בדיקה מתבצעת, מחיקת כל המדידות, ייצוא כל "הבדיקות שלי" ל-TXT, וייצוא TXT/Word מהפאנלים עם תמיכה ב-Android.<br/>
             <b>3.15.2</b> — טופס בדיקות הדם לנשים הוחלף בגרסה גנרית וכללית, ללא הקדמה המוגבלת לתזונה קטוגנית או דלת פחמימות; נשמר העיצוב הממורכז ושם הקובץ כולל „גנרי”.<br/>
             <b>3.15.1</b> — פאנל נשים בגיל המעבר ופאנל גברים מגיל 50 הועברו לראש רשימת הפאנלים, בסדר זה, לגישה מהירה יותר.<br/>
             <b>3.15.0</b> — בפאנל גברים מגיל 50 ובפאנל נשים בגיל המעבר נוספו טפסי Word מלאים ומוכנים להורדה ולהצגה לרופא/ה; הקבצים מוטמעים באפליקציה ולכן אינם דורשים קובצי עזר חיצוניים.<br/>
@@ -3537,9 +3791,23 @@ function TestDetail({ test, onClose, onOpenRelated, matchReason, entries, search
   const myRecords = (entries || []).filter(e => e.testId === test.id).sort((a, b) => (a.date || "").localeCompare(b.date || ""));
   const myLatest = myRecords[myRecords.length - 1];
   const pubmedUrl = test.en ? `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(test.en)}` : null;
+  const detailRef = useRef(null);
+  const procedureText = getProcedureText(test);
+
+  useEffect(() => {
+    setActiveTab((conceptNote || routeNote) ? "connection" : "info");
+    requestAnimationFrame(() => {
+      if (detailRef.current) {
+        detailRef.current.scrollTop = 0;
+        try { detailRef.current.scrollTo?.({ top: 0, behavior: "auto" }); } catch { /* older WebView */ }
+      }
+      try { window.scrollTo?.({ top: 0, behavior: "auto" }); } catch { window.scrollTo?.(0, 0); }
+    });
+  }, [test.id, searchQuery]);
 
   return (
-    <div className="idx-detail">
+    <div className="idx-detail" ref={detailRef}>
+      <div className="idx-detail-sticky-shell">
       <div className="idx-detail-head" style={{ background: cat.color }}>
         <button className="idx-detail-back" onClick={onClose}><ChevronLeft size={16}/> חזרה לאינדקס</button>
         <div className="idx-detail-title">{test.name}</div>
@@ -3550,6 +3818,25 @@ function TestDetail({ test, onClose, onOpenRelated, matchReason, entries, search
             {test.unit && <div style={{opacity:0.75, marginTop:2}}>יחידות: {test.unit}</div>}
           </div>
         )}
+      </div>
+      {hasConnection && (
+        <div className="idx-detail-tabs">
+          <span
+            className="idx-chip"
+            style={{cursor:"pointer", background: showInfo ? "#241F1B" : "#F1EBDD", color: showInfo ? "#F7F4EE" : "#5B5346", fontWeight:700, whiteSpace:"nowrap"}}
+            onClick={() => setActiveTab("info")}
+          >
+            מידע על הבדיקה
+          </span>
+          <span
+            className="idx-chip"
+            style={{cursor:"pointer", background: !showInfo ? "#241F1B" : "#F1EBDD", color: !showInfo ? "#F7F4EE" : "#5B5346", fontWeight:700, whiteSpace:"nowrap"}}
+            onClick={() => setActiveTab("connection")}
+          >
+            🔎 הקשר לחיפוש שלך
+          </span>
+        </div>
+      )}
       </div>
       <div className="idx-section">
         {myLatest && (
@@ -3566,25 +3853,6 @@ function TestDetail({ test, onClose, onOpenRelated, matchReason, entries, search
             </div>
           </div>
         )}
-        {hasConnection && (
-          <div style={{display:"flex", gap:8, marginBottom:14}}>
-            <span
-              className="idx-chip"
-              style={{cursor:"pointer", background: showInfo ? "#241F1B" : "#F1EBDD", color: showInfo ? "#F7F4EE" : "#5B5346", fontWeight:700}}
-              onClick={() => setActiveTab("info")}
-            >
-              מידע על הבדיקה
-            </span>
-            <span
-              className="idx-chip"
-              style={{cursor:"pointer", background: !showInfo ? "#241F1B" : "#F1EBDD", color: !showInfo ? "#F7F4EE" : "#5B5346", fontWeight:700}}
-              onClick={() => setActiveTab("connection")}
-            >
-              🔎 הקשר לחיפוש שלך
-            </span>
-          </div>
-        )}
-
         {!showInfo && (
           <>
             {routeNote && (
@@ -3621,7 +3889,12 @@ function TestDetail({ test, onClose, onOpenRelated, matchReason, entries, search
           <div className="idx-block-text">{test.desc}{test.what ? " " + test.what : ""}</div>
         </div>
 
-        {isBlood ? (
+        <div className="idx-block">
+          <div className="idx-block-label"><Stethoscope size={15} color={cat.color}/> איך מתבצעת הבדיקה</div>
+          <div className="idx-block-text">{procedureText}</div>
+        </div>
+
+        {isBlood && (
           <>
             <div className="idx-block">
               <div className="idx-block-label"><ArrowUpCircle size={15} color="#B23A48"/> משמעות ערך גבוה</div>
@@ -3632,11 +3905,6 @@ function TestDetail({ test, onClose, onOpenRelated, matchReason, entries, search
               <div className="idx-block-text">{test.low}</div>
             </div>
           </>
-        ) : (
-          <div className="idx-block">
-            <div className="idx-block-label"><Stethoscope size={15} color={cat.color}/> איך מתבצעת הבדיקה</div>
-            <div className="idx-block-text">{test.procedure}</div>
-          </div>
         )}
 
         <div className="idx-block">
@@ -3857,6 +4125,25 @@ function downloadEmbeddedPanelDocument(file) {
 function PanelCard({ panel, onSelectTest }) {
   const optionalTests = (panel.optionalTestIds || []).filter(tid => TEST_MAP[tid]);
   const embeddedDocument = PANEL_DOCUMENT_DOWNLOADS[panel.id] || null;
+  const [exportMsg, setExportMsg] = useState("");
+
+  const exportPanel = async (format) => {
+    setExportMsg("מכין קובץ...");
+    try {
+      const base = `TestMe_${safeFilePart(panel.title)}_${new Date().toISOString().slice(0, 10)}`;
+      const isWord = format === "word";
+      const result = await saveOrShareFile({
+        content: isWord ? panelWordContent(panel) : panelTextContent(panel),
+        fileName: `${base}.${isWord ? "doc" : "txt"}`,
+        mimeType: isWord ? "application/msword;charset=utf-8" : "text/plain;charset=utf-8",
+        title: panel.title,
+      });
+      setExportMsg(exportResultMessage(result));
+    } catch (err) {
+      setExportMsg(`הייצוא נכשל: ${err?.message || "שגיאה לא ידועה"}`);
+    }
+  };
+
   return (
     <div className="idx-block" style={{marginBottom:12}}>
       <div className="idx-block-label" style={{fontSize:15}}>{panel.title}</div>
@@ -3888,14 +4175,15 @@ function PanelCard({ panel, onSelectTest }) {
             ⬇ {embeddedDocument.label}
           </button>
         )}
-        <button type="button" className="idx-panel-export" onClick={() => exportPanelToFile(panel)}>
-          ⬇ ייצוא רשימת הבדיקות כקובץ TXT
-        </button>
       </div>
+      <div className="idx-export-row">
+        <button type="button" className="idx-export-btn" onClick={() => exportPanel("text")}>📄 ייצוא לקובץ TXT</button>
+        <button type="button" className="idx-export-btn" onClick={() => exportPanel("word")}>📝 ייצוא לקובץ Word</button>
+      </div>
+      {exportMsg && <div className="idx-export-feedback" style={{color: exportMsg.includes("נכשל") ? "#B23A48" : "#3E7C59"}}>{exportMsg}</div>}
     </div>
   );
 }
-
 function RecommendedPanels({ query, onSelectTest }) {
   const q = (query || "").trim().toLowerCase();
 
@@ -3964,6 +4252,7 @@ function MyResults({ entries, setEntries }) {
   const photoInputRef = useRef(null);
   const [isAiTextProcessing, setIsAiTextProcessing] = useState(false);
   const [aiTextError, setAiTextError] = useState("");
+  const [exportFeedback, setExportFeedback] = useState("");
 
   const upsertRecords = (records) => {
     setEntries(prev => {
@@ -4010,6 +4299,34 @@ function MyResults({ entries, setEntries }) {
     setEntries(prev => prev.filter(e => e.testId !== testId));
     setShowCorr(false);
     if (expandedTest === testId) setExpandedTest(null);
+  };
+
+  const clearAllMeasurements = () => {
+    if (!entries.length) return;
+    const approved = window.confirm(`למחוק את כל ${entries.length} המדידות מ"הבדיקות שלי"? הפעולה אינה ניתנת לביטול.`);
+    if (!approved) return;
+    setEntries([]);
+    setExpandedTest(null);
+    setShowCorr(false);
+    setShowSummary(false);
+    setTrendsText(null);
+    setExportFeedback("כל המדידות נמחקו.");
+  };
+
+  const exportAllMeasurements = async () => {
+    if (!entries.length) return;
+    setExportFeedback("מכין קובץ...");
+    try {
+      const result = await saveOrShareFile({
+        content: myResultsTextContent(entries),
+        fileName: `TestMe_כל_המדידות_${new Date().toISOString().slice(0, 10)}.txt`,
+        mimeType: "text/plain;charset=utf-8",
+        title: "כל המדידות ב-TestMe",
+      });
+      setExportFeedback(exportResultMessage(result));
+    } catch (err) {
+      setExportFeedback(`הייצוא נכשל: ${err?.message || "שגיאה לא ידועה"}`);
+    }
   };
 
   const runBulkImport = (text) => {
@@ -4597,6 +4914,20 @@ function MyResults({ entries, setEntries }) {
         </div>
       )}
 
+      {entries.length > 0 && (
+        <div className="idx-block" style={{marginBottom:14, background:"#FAF8F3"}}>
+          <div className="idx-block-label">📁 ניהול וייצוא המדידות</div>
+          <div className="idx-block-text" style={{fontSize:12.5, color:"#8A8175"}}>
+            ניתן לייצא את כל המדידות, כולל כל התאריכים והטווחים, לקובץ טקסט אחד. מחיקה מלאה פועלת גם במצב אורח.
+          </div>
+          <div className="idx-export-row">
+            <button className="idx-export-btn" onClick={exportAllMeasurements}>📄 ייצוא כל המדידות ל-TXT</button>
+            <button className="idx-danger-btn" onClick={clearAllMeasurements}>🗑️ מחיקת כל המדידות</button>
+          </div>
+          {exportFeedback && <div className="idx-export-feedback" style={{color: exportFeedback.includes("נכשל") ? "#B23A48" : "#3E7C59"}}>{exportFeedback}</div>}
+        </div>
+      )}
+
       {uniqueDates.length > 1 && (
         <div className="idx-block" style={{marginBottom:14}}>
           <div className="idx-block-label">📅 תצוגה לפי תאריך בדיקה</div>
@@ -4810,6 +5141,53 @@ function MyResults({ entries, setEntries }) {
   );
 }
 
+function WelcomeSplash({ onClose }) {
+  const [dontShowAgain, setDontShowAgain] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => onClose(dontShowAgain), 6500);
+    return () => clearTimeout(timer);
+  }, [dontShowAgain, onClose]);
+
+  return (
+    <div className="idx-splash" role="dialog" aria-modal="true" aria-label="ברוכים הבאים ל-TestMe">
+      <div className="idx-splash-card">
+        <svg className="idx-kiosk-illustration" viewBox="0 0 260 180" role="img" aria-label="קיוסק מידע רפואי">
+          <defs>
+            <linearGradient id="kioskScreen" x1="0" x2="1"><stop offset="0" stopColor="#F5D9DE"/><stop offset="1" stopColor="#D7E7F2"/></linearGradient>
+            <filter id="shadow"><feDropShadow dx="0" dy="6" stdDeviation="6" floodOpacity=".22"/></filter>
+          </defs>
+          <ellipse cx="130" cy="165" rx="78" ry="10" fill="#D8D0C3"/>
+          <g filter="url(#shadow)">
+            <rect x="72" y="18" width="116" height="118" rx="16" fill="#241F1B"/>
+            <rect x="82" y="29" width="96" height="72" rx="10" fill="url(#kioskScreen)"/>
+            <circle cx="130" cy="65" r="23" fill="#FFF" opacity=".92"/>
+            <path d="M130 48v34M113 65h34" stroke="#B23A48" strokeWidth="9" strokeLinecap="round"/>
+            <rect x="105" y="111" width="50" height="8" rx="4" fill="#F7F4EE" opacity=".72"/>
+            <path d="M101 136h58l12 27H89z" fill="#4A4038"/>
+          </g>
+          <circle cx="55" cy="54" r="15" fill="#3E7C59" opacity=".9"/>
+          <path d="M49 54l5 5 9-11" fill="none" stroke="#FFF" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+          <circle cx="205" cy="84" r="14" fill="#2F6690" opacity=".9"/>
+          <path d="M205 76v16M197 84h16" stroke="#FFF" strokeWidth="3.5" strokeLinecap="round"/>
+        </svg>
+        <div className="idx-splash-title">ברוכים הבאים לקיוסק המידע</div>
+        <div className="idx-splash-text">
+          מידע על בדיקות וסקרים שיכולים לסייע במניעה, בזיהוי מוקדם ובהבנת מצבי חולי — בצורה מסודרת ונגישה.
+        </div>
+        <div className="idx-loading-dots" aria-label="טוען"><span></span><span></span><span></span></div>
+        <label style={{display:"flex", alignItems:"center", justifyContent:"center", gap:8, fontSize:13.5, cursor:"pointer", marginBottom:12}}>
+          <input type="checkbox" checked={dontShowAgain} onChange={e => setDontShowAgain(e.target.checked)} />
+          אל תציג שוב בפתיחה
+        </label>
+        <button className="idx-add-btn" style={{width:"100%", borderRadius:11, padding:"12px 16px", fontSize:15}} onClick={() => onClose(dontShowAgain)}>
+          כניסה לקיוסק
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* מציג את השגיאה על המסך במקום מסך שחור */
 class ErrorBoundary extends React.Component {
   constructor(p) { super(p); this.state = { err: null }; }
@@ -4841,8 +5219,25 @@ function BloodTestIndexInner() {
   const [showLangPicker, setShowLangPicker] = useState(false);
   const [voiceError, setVoiceError] = useState("");
   const recognitionRef = useRef(null);
+  const [showWelcome, setShowWelcome] = useState(false);
   const swipeStartRef = useRef(null);
   const VIEW_ORDER = ["index", "panels", "myresults", "account"];
+
+
+  useEffect(() => {
+    let active = true;
+    window.storage.get(WELCOME_STORAGE_KEY)
+      .then((r) => { if (active && r?.value !== "1") setShowWelcome(true); })
+      .catch(() => { if (active) setShowWelcome(true); });
+    return () => { active = false; };
+  }, []);
+
+  const closeWelcome = React.useCallback(async (dontShowAgain) => {
+    if (dontShowAgain) {
+      await window.storage.set(WELCOME_STORAGE_KEY, "1").catch(() => {});
+    }
+    setShowWelcome(false);
+  }, []);
 
   const cycleView = (step) => {
     setView(current => {
@@ -5552,6 +5947,7 @@ function BloodTestIndexInner() {
       </div>
 
       {showAbout && <AboutPanel onClose={() => setShowAbout(false)} />}
+      {showWelcome && <WelcomeSplash onClose={closeWelcome} />}
     </div>
   );
 }
