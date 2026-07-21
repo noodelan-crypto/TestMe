@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.16.0";
+const APP_VERSION = "3.16.1";
 /* סיסמה חדשה (הרשמה/איפוס): 8+ תווים, לפחות אות אחת וספרה אחת */
 const isStrongPass = (p) => p.length >= 8 && /[a-zA-Zא-ת]/.test(p) && /[0-9]/.test(p);
 const APP_UPDATED = "יולי 2026";
@@ -1298,37 +1298,62 @@ function browserDownload(blob, fileName) {
   }, 1500);
 }
 
-async function saveOrShareFile({ content, fileName, mimeType, title }) {
-  const payloadContent = mimeType.includes("text/plain") ? `\uFEFF${content}` : content;
-  const blob = new Blob([payloadContent], { type: mimeType });
+function base64ToBytes(base64Data) {
+  const clean = String(base64Data || "").replace(/\s+/g, "");
+  const binary = window.atob(clean);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+async function saveOrShareFile({ content = "", base64Data = null, fileName, mimeType, title }) {
+  const isBinaryFile = typeof base64Data === "string" && base64Data.length > 0;
+  const payloadContent = !isBinaryFile && mimeType.includes("text/plain") ? `\uFEFF${content}` : content;
+  const blob = isBinaryFile
+    ? new Blob([base64ToBytes(base64Data)], { type: mimeType })
+    : new Blob([payloadContent], { type: mimeType });
   const native = isNativeApp();
   const plugins = window?.Capacitor?.Plugins || {};
   const registerPlugin = window?.Capacitor?.registerPlugin;
   const Filesystem = plugins.Filesystem || (registerPlugin ? registerPlugin("Filesystem") : null);
   const Share = plugins.Share || (registerPlugin ? registerPlugin("Share") : null);
 
-  /* Native Capacitor path: save a real file under Documents/TestMe and then
-     offer the Android share sheet. This avoids relying on <a download>, which
-     many Android WebViews ignore. */
+  /* Native Capacitor path: save a persistent copy in Documents/TestMe. For
+     embedded binary files, also create a cache copy because Capacitor Share
+     allows cache files by default on Android. */
   if (native && Filesystem?.writeFile) {
     try {
-      const result = await Filesystem.writeFile({
+      const encodedData = isBinaryFile ? base64Data : utf8ToBase64(payloadContent);
+      const saved = await Filesystem.writeFile({
         path: `TestMe/${fileName}`,
-        data: utf8ToBase64(payloadContent),
+        data: encodedData,
         directory: "DOCUMENTS",
         recursive: true,
       });
-      if (Share?.share && result?.uri) {
+
+      let shareUri = saved?.uri;
+      if (isBinaryFile) {
+        const cached = await Filesystem.writeFile({
+          path: `TestMe/${fileName}`,
+          data: encodedData,
+          directory: "CACHE",
+          recursive: true,
+        });
+        shareUri = cached?.uri || shareUri;
+      }
+
+      if (Share?.share && shareUri) {
         await Share.share({
           title: title || fileName,
-          text: "קובץ שיוצא מאפליקציית TestMe",
-          url: result.uri,
+          text: "שמירה, פתיחה או שיתוף של קובץ מ-TestMe",
+          files: [shareUri],
           dialogTitle: "שמירה או שיתוף הקובץ",
         });
-        return { mode: "saved-and-shared", uri: result.uri };
+        return { mode: "saved-and-shared", uri: saved?.uri || shareUri };
       }
-      return { mode: "saved", uri: result?.uri };
-    } catch {
+      return { mode: "saved", uri: saved?.uri };
+    } catch (nativeError) {
+      console.error("Native file save/share failed", nativeError);
       /* Continue to Web Share / browser fallback below. */
     }
   }
@@ -1338,13 +1363,14 @@ async function saveOrShareFile({ content, fileName, mimeType, title }) {
   if (native && typeof File !== "undefined" && navigator.share) {
     try {
       const file = new File([blob], fileName, { type: mimeType, lastModified: Date.now() });
-      const shareData = { title: title || fileName, text: "קובץ שיוצא מאפליקציית TestMe", files: [file] };
+      const shareData = { title: title || fileName, text: "שמירה, פתיחה או שיתוף של קובץ מ-TestMe", files: [file] };
       if (!navigator.canShare || navigator.canShare(shareData)) {
         await navigator.share(shareData);
         return { mode: "shared" };
       }
     } catch (err) {
       if (err?.name === "AbortError") return { mode: "cancelled" };
+      console.error("Web Share fallback failed", err);
     }
   }
 
@@ -3721,6 +3747,7 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.16.1</b> — תיקון הורדת מסמכי ה-Word המובנים בפאנלים המומלצים לגברים ולנשים ב-Android: שמירת עותק במכשיר ופתיחת חלון שמירה/שיתוף מקורי.<br/>
             <b>3.16.0</b> — מסך פתיחה חדש לקיוסק, פתיחת כל בדיקה מראש העמוד, לשוניות מידע/הקשר קבועות בגלילה, הסבר כיצד כל בדיקה מתבצעת, מחיקת כל המדידות, ייצוא כל "הבדיקות שלי" ל-TXT, וייצוא TXT/Word מהפאנלים עם תמיכה ב-Android.<br/>
             <b>3.15.2</b> — טופס בדיקות הדם לנשים הוחלף בגרסה גנרית וכללית, ללא הקדמה המוגבלת לתזונה קטוגנית או דלת פחמימות; נשמר העיצוב הממורכז ושם הקובץ כולל „גנרי”.<br/>
             <b>3.15.1</b> — פאנל נשים בגיל המעבר ופאנל גברים מגיל 50 הועברו לראש רשימת הפאנלים, בסדר זה, לגישה מהירה יותר.<br/>
@@ -4101,25 +4128,14 @@ function exportPanelToFile(panel) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function downloadEmbeddedPanelDocument(file) {
-  if (!file || !file.base64) return;
-  try {
-    const binary = window.atob(file.base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    const blob = new Blob([bytes], { type: file.mime });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = file.filename;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
-  } catch (err) {
-    console.error("Document download failed", err);
-    window.alert("הורדת המסמך נכשלה. נסו שוב או פתחו את האפליקציה בדפדפן מעודכן.");
-  }
+async function downloadEmbeddedPanelDocument(file) {
+  if (!file || !file.base64) throw new Error("המסמך אינו זמין");
+  return saveOrShareFile({
+    base64Data: file.base64,
+    fileName: file.filename,
+    mimeType: file.mime,
+    title: file.label || file.filename,
+  });
 }
 
 function PanelCard({ panel, onSelectTest }) {
@@ -4170,7 +4186,16 @@ function PanelCard({ panel, onSelectTest }) {
           <button
             type="button"
             className="idx-panel-export idx-panel-docx"
-            onClick={() => downloadEmbeddedPanelDocument(embeddedDocument)}
+            onClick={async () => {
+              setExportMsg("מכין את מסמך ה-Word...");
+              try {
+                const result = await downloadEmbeddedPanelDocument(embeddedDocument);
+                setExportMsg(exportResultMessage(result));
+              } catch (err) {
+                console.error("Document download failed", err);
+                setExportMsg(`הורדת המסמך נכשלה: ${err?.message || "שגיאה לא ידועה"}`);
+              }
+            }}
           >
             ⬇ {embeddedDocument.label}
           </button>
