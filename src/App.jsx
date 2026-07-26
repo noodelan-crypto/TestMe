@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.16.1";
+const APP_VERSION = "3.17.1";
 /* סיסמה חדשה (הרשמה/איפוס): 8+ תווים, לפחות אות אחת וספרה אחת */
 const isStrongPass = (p) => p.length >= 8 && /[a-zA-Zא-ת]/.test(p) && /[0-9]/.test(p);
 const APP_UPDATED = "יולי 2026";
@@ -1970,7 +1970,7 @@ const BLOOD = [
     coverage:"כלולה בסל הבריאות לגברים מגיל 50 (או 45 בגורמי סיכון), לפי שיקול דעת רפואי.",
     related:[] },
   { id:"ca125", name:"CA-125", en:"CA-125", unit:"U/mL", range:"מתחת ל-35",
-    tags:["שחלות","ovarian","גידול","tumor marker"],
+    tags:["שחלות","ovarian","גידול","tumor marker","אנדומטריוזיס","אנדומיטריוזיס","אנדומטריוסיס","endometriosis","CA-125 endometriosis"],
     topicNote:"CA-125 הוא חלבון שמופיע על פני תאי שחלה, אך גם על רקמות אחרות כמו רירית הרחם — לכן הוא עולה גם באנדומטריוזיס ומחלת דלקת אגן, לא רק בסרטן שחלות, ואינו משמש כבדיקת סקר כללית.",
     desc:"סמן גידולי המשמש בעיקר במעקב אחר סרטן השחלות.",
     high:"עלול לנבוע מסרטן שחלות, אך גם מאנדומטריוזיס, מחלת דלקת אגן, הריון.",
@@ -2419,9 +2419,9 @@ const CARDIO = [
       {name:"Cardio Israel — מרפאת קרדיולוגיה פרטית, כולל CAC ובדיקות שומנים מתקדמות", url:"https://cardioisrael.co.il/dyslipidemiatests"},
     ],
     related:["stress","ct_angio"] },
-  { id:"ct_angio", name:"CT אנגיוגרפיה כלילית", en:"Coronary CT Angiography (CCTA)", type:"procedure",
-    tags:["לב","heart","כאבי חזה","chest pain","עורקים כליליים","coronary arteries"],
-    topicNote:"CT אנגיו כלילי מאפשר לראות את העורקים הכליליים ולזהות היצרויות — בניגוד לציון הסידן שרואה רק הסתיידות, כאן ניתן לראות גם פלאק 'רך' שעדיין לא הסתייד.",
+  { id:"ct_angio", name:"צנתור וירטואלי — CT אנגיוגרפיה כלילית", en:"Coronary CT Angiography (CCTA) — Non-invasive", type:"procedure",
+    tags:["לב","heart","כאבי חזה","chest pain","עורקים כליליים","coronary arteries","צנתור וירטואלי","צנתור לא פולשני","virtual catheterization","non-invasive coronary angiography"],
+    topicNote:"צנתור וירטואלי הוא בדיקת CT לא פולשנית: חומר הניגוד מוזרק לווריד, אך לא מוחדר צנתר לעורקי הלב. הבדיקה מאפשרת לראות את העורקים הכליליים ולזהות היצרויות ופלאק, כולל פלאק לא מסויד — בניגוד לציון הסידן שרואה רק הסתיידות.",
     desc:"סריקת CT עם חומר ניגוד המדמה את העורקים הכליליים ומזהה חסימות.",
     what:"מאפשרת לראות פלאק (גם רך וגם מסויד) ודרגת היצרות בעורקים הכליליים.",
     procedure:"דורשת החדרת חומר ניגוד לווריד, לעיתים תרופה להאטת קצב הלב לפני הבדיקה.",
@@ -2433,9 +2433,9 @@ const CARDIO = [
       {name:"תל אביב מדיקל סנטר — צנתור וירטואלי (CT לב) פרטי", url:"https://tlvmed.co.il/services/express/%D7%A6%D7%A0%D7%AA%D7%95%D7%A8-%D7%95%D7%99%D7%A8%D7%98%D7%95%D7%90%D7%9C%D7%99/"},
     ],
     related:["cac","cath"] },
-  { id:"cath", name:"צנתור לב אבחנתי", en:"Diagnostic Cardiac Catheterization", type:"procedure",
-    tags:["לב","heart","התקף לב","heart attack","עורקים כליליים","coronary"],
-    topicNote:"צנתור לב הוא הבדיקה היחידה שמאפשרת לראות את זרימת הדם בעורקים הכליליים בזמן אמת ולתקן חסימה מיידית (בבלון/סטנט) באותו הליך — ולכן נחשב לבדיקת הזהב לאבחון וטיפול משולבים.",
+  { id:"cath", name:"צנתור לב אבחנתי פולשני", en:"Invasive Diagnostic Coronary Angiography / Cardiac Catheterization", type:"procedure",
+    tags:["לב","heart","התקף לב","heart attack","עורקים כליליים","coronary","צנתור פולשני","צנתור לב פולשני","invasive catheterization","coronary angiography"],
+    topicNote:"זהו צנתור פולשני: צנתר מוחדר דרך עורק ביד או במפשעה עד לעורקי הלב. הוא מאפשר לראות את זרימת הדם בזמן אמת, למדוד היצרויות ובמקרים מתאימים לטפל מיד בבלון או בסטנט — בניגוד לצנתור הווירטואלי שהוא בדיקת CT ללא צנתר בעורקי הלב.",
     desc:"בדיקה פולשנית שבה מוחדר צנתר דרך כלי דם עד ללב להזרקת חומר ניגוד וצפייה ישירה בעורקים.",
     what:"מאבחן במדויק חסימות בעורקים הכליליים ומאפשר טיפול מיידי (הרחבת בלון/סטנט) במידת הצורך.",
     procedure:"פולשנית, מבוצעת בהרדמה מקומית ובהשגחת צוות קרדיולוגי, בדרך כלל דרך פרק כף היד.",
@@ -2505,7 +2505,7 @@ const IMAGING = [
     prep:"לעיתים נדרש צום קצר לפני חומר ניגוד.", freq:"לפי צורך קליני בלבד — אינה בדיקת סקר שגרתית.",
     coverage:"כלולה בסל הבריאות עם הפניה מתאימה.", related:["cxr","mri"] },
   { id:"mri", name:"MRI (דימות תהודה מגנטית)", en:"MRI", type:"procedure",
-    tags:["מוח","brain","עמוד שדרה","spine","מפרקים","joints","סיאטיקה","sciatica","כאבי גב","back pain","פריצת דיסק","herniated disc","כתף","shoulder","ברך","knee","פיריפורמיס","piriformis","גיד","tendon","קרע","tear","נוירולוגי","neurological"],
+    tags:["מוח","brain","עמוד שדרה","spine","מפרקים","joints","סיאטיקה","sciatica","כאבי גב","back pain","פריצת דיסק","herniated disc","כתף","shoulder","ברך","knee","פיריפורמיס","piriformis","גיד","tendon","קרע","tear","נוירולוגי","neurological","אנדומטריוזיס","אנדומיטריוזיס","אנדומטריוסיס","endometriosis","אנדומטריוזיס עמוק","deep endometriosis","כאבי אגן","pelvic pain"],
     topicNote:"MRI משתמש בשדה מגנטי במקום קרינה, ומצטיין ברקמות רכות (מוח, עמוד שדרה, מפרקים) כי הוא רגיש להבדלים במים וברקמה — שם CT ורנטגן, שטובים יותר לעצם, פחות יעילים. לכן זו בדיקת הבחירה לבירור כאב שמקורו ברקמה רכה: סיאטיקה (לחץ על עצב מפריצת דיסק), קרעים בגידים או בשרירים (למשל תסמונת השריר הפיריפורמיס הלוחץ על עצב הסיאטיק), ופגיעות בכתף, בברך ובמפרקים אחרים שרנטגן לא מדגים.",
     desc:"הדמיה מפורטת של רקמות רכות באמצעות שדה מגנטי וגלי רדיו, ללא קרינה מייננת.",
     what:"מצטיינת בהדמיית מוח, עמוד שדרה, מפרקים, גידים, שרירים ורקמות רכות — כולל בירור סיאטיקה, פריצות דיסק, וקרעים בכתף ובברך.",
@@ -2604,7 +2604,7 @@ const IMAGING = [
     reliability:"רגישה מאוד לזיהוי פעילות מטבולית חריגה.", prep:"נדרש צום של מספר שעות ולעיתים הימנעות ממאמץ גופני יום לפני.",
     freq:"לפי הפניה אונקולוגית ספציפית.", coverage:"כלולה בסל הבריאות במקרים מוגדרים.", related:["ct_chest"] },
   { id:"us_vaginal", name:"אולטרסאונד וגינלי", en:"Transvaginal Ultrasound", type:"procedure",
-    tags:["רחם","uterus","שחלות","ovaries","גינקולוגיה","gynecology","מחזור","period"],
+    tags:["רחם","uterus","שחלות","ovaries","גינקולוגיה","gynecology","מחזור","period","אנדומטריוזיס","אנדומיטריוזיס","אנדומטריוסיס","endometriosis","אנדומטריומה","endometrioma","כאבי אגן","pelvic pain"],
     topicNote:"אולטרסאונד וגינלי מספק תמונה חדה משמעותית של הרחם והשחלות מאשר אולטרסאונד בטני, פשוט כי החיישן קרוב הרבה יותר לאיברים הנבדקים — הבדיקה המועדפת בבירורי גינקולוגיה ופוריות.",
     desc:"בדיקת אולטרסאונד פנימית להערכת הרחם, השחלות ואיברי האגן הנשי.",
     what:"מזהה ציסטות בשחלות, שרירנים ברחם, ובוחן את רירית הרחם.",
@@ -2918,6 +2918,10 @@ const SYMPTOM_ROUTES = {
   "nausea and vomiting": ["gluc","alt","ast","na","k","tsh"],
   "אבנים בכיס המרה": ["us_abd","alp","tbil","ggt"],
   "בכיס המרה": ["us_abd","alp","tbil","ggt"],
+  "אנדומטריוזיס": ["us_vaginal","mri","hgb","ferritin","ca125"],
+  "אנדומיטריוזיס": ["us_vaginal","mri","hgb","ferritin","ca125"],
+  "אנדומטריוסיס": ["us_vaginal","mri","hgb","ferritin","ca125"],
+  "endometriosis": ["us_vaginal","mri","hgb","ferritin","ca125"],
 };
 
 /* =========================================================
@@ -3037,6 +3041,16 @@ const ROUTE_NOTES = {
       baso: "בזופילים משתתפים גם הם בתהליך האלרגי, אם כי תפקידם משני יחסית ל-IgE ולאאוזינופילים.",
     }
   },
+  endometriosis: {
+    match: ["אנדומטריוזיס","אנדומיטריוזיס","אנדומטריוסיס","endometriosis","אנדומטריומה","endometrioma"],
+    tests: {
+      us_vaginal: "אולטרסאונד וגינלי הוא בדיקת הדימות הראשונית המקובלת בחשד לאנדומטריוזיס. הוא עשוי לזהות אנדומטריומות בשחלות ומחלה עמוקה, אך תוצאה תקינה אינה שוללת בהכרח מחלה שטחית.",
+      mri: "MRI אגן עשוי לסייע במיפוי אנדומטריוזיס עמוק ובהיערכות לטיפול או לניתוח, בעיקר כאשר נדרש פירוט אנטומי נוסף או כשהאולטרסאונד אינו חד-משמעי. הוא אינו בדיקת הסקר הראשונה לכל חשד.",
+      ca125: "CA-125 יכול להיות מוגבר באנדומטריוזיס, אך אינו מספיק רגיש או ספציפי כדי לאבחן את המחלה ואינו מומלץ כבדיקת סקר עצמאית.",
+      hgb: "אנדומטריוזיס עצמו אינו מאובחן בהמוגלובין, אך דימום וסתי כבד עלול לגרום לאנמיה — ולכן הבדיקה רלוונטית להערכת השפעת התסמינים.",
+      ferritin: "פריטין בודק את מאגרי הברזל. הוא רלוונטי כאשר כאבי מחזור מלווים בדימום כבד או ממושך, אך אינו מאבחן אנדומטריוזיס.",
+    }
+  },
 };
 
 function findRouteNote(testId, query) {
@@ -3132,6 +3146,36 @@ const RULES = [
 /* =========================================================
    RECOMMENDED PANELS (curated bundles by topic/goal)
    ========================================================= */
+const CARDIO_RISK_SHARED_NOTE = "הערכת סיכון קרדיווסקולרי אינה נשענת על בדיקה אחת. פרופיל שומנים בסיסי מודד ריכוזי כולסטרול ושומנים; ApoB משקף את מספר החלקיקים האתרוגניים; Lp(a) הוא גורם סיכון תורשתי שאינו מתגלה בפרופיל שומנים רגיל; ציון סידן כלילי (CAC) מזהה פלאק מסויד, ואילו צנתור וירטואלי — CT אנגיוגרפיה כלילית — יכול להדגים גם פלאק לא מסויד. צנתור לב אבחנתי פולשני הוא הליך שונה, שבו מוחדר צנתר לעורקי הלב וניתן לעיתים גם לטפל בחסימה באותו מעמד. כל בדיקה עונה על שאלה אחרת, ולכן יש לפרש את השילוב לפי גורמי הסיכון והתסמינים האישיים.";
+
+const CARDIO_RISK_ROLES = {
+  tchol: "נותן תמונת-על של השומנים, אך אינו מפריד לבדו בין מספר החלקיקים וסוגיהם.",
+  ldl: "מודד את כמות הכולסטרול שנישאת בחלקיקי LDL; ApoB יכול להוסיף מידע על מספר החלקיקים.",
+  hdl: "משלים את פרופיל השומנים ואת היחסים המטבוליים, אך אינו מבטל סיכון שנובע מ-ApoB או Lp(a) גבוהים.",
+  tg: "משקף עומס שומנים מטבולי ומשתלב עם HDL, גלוקוז ו-ApoB בהערכת הסיכון.",
+  apob: "מודד בקירוב את מספר החלקיקים האתרוגניים ולכן מוסיף מידע מעבר ל-LDL-C.",
+  apoa1: "מייצג את החלבון המרכזי בחלקיקי HDL ומשמש לעיתים יחד עם ApoB להערכת מאזן החלקיקים.",
+  lpa: "מזהה גורם סיכון תורשתי שאינו נלכד בפרופיל השומנים הרגיל ולעיתים מספיק למדוד פעם אחת בחיים.",
+  ldl_particle: "בודק את גודל וצפיפות חלקיקי LDL ומוסיף פירוט כאשר פרופיל השומנים הרגיל אינו מסביר את התמונה.",
+  crp: "סמן דלקתי כללי; hs-CRP עשוי לתרום להערכת סיכון, אך אינו ספציפי ללב.",
+  homocysteine: "עשוי להוסיף מידע במצבים נבחרים, בעיקר לצד בירור B12 ופולאט, אך אינו בדיקת סקר יחידה למחלת לב.",
+  bp_sys: "לחץ דם סיסטולי גבוה לאורך זמן הוא גורם סיכון מרכזי לפגיעה בעורקים, בלב, במוח ובכליות.",
+  bp_dia: "משלים את מדידת לחץ הדם ומסייע להעריך את העומס המתמשך על כלי הדם.",
+  bp_routine: "מדידת לחץ דם שגרתית היא אחד המרכיבים הבסיסיים ביותר בהערכת סיכון לב וכלי דם.",
+  ecg: "בודק פעילות חשמלית והפרעות קצב; אינו מדגים ישירות פלאק בעורקים הכליליים.",
+  stress: "בודק אם מאמץ חושף עדות לאספקת דם לא מספקת לשריר הלב.",
+  echo: "מעריך את מבנה הלב, המסתמים ותפקוד ההתכווצות; אינו בדיקת פלאק כלילי.",
+  holter_ecg: "מנטר קצב לאורך זמן כדי לתפוס הפרעות חולפות שאק״ג קצר עלול לפספס.",
+  holter_bp: "מנטר לחץ דם לאורך היממה ומפחית הטיה של מדידה בודדת במרפאה.",
+  troponin: "מסייע לזהות נזק חריף לשריר הלב, בעיקר בחשד לאוטם; הוא אינו בדיקת סקר שגרתית לסיכון עתידי.",
+  bnp: "משמש להערכת עומס ואי-ספיקת לב; אינו מודד ישירות טרשת או חסימות בעורקים הכליליים.",
+  cac: "מודד רק הסתיידות קיימת בעורקים הכליליים; ציון 0 אינו מתאר בהכרח פלאק לא מסויד.",
+  ct_angio: "זהו הצנתור הווירטואלי הלא פולשני: CT עם חומר ניגוד שמדגים את חלל העורקים ופלאק מסויד ולא מסויד.",
+  cath: "זהו הצנתור הפולשני: צנתר מוחדר לעורקי הלב, והוא מאפשר אבחון מדויק ולעיתים טיפול מיידי.",
+  carotid_us: "בודק טרשת והיצרויות בעורקי הצוואר ומשמש חלון נוסף למצב כלי הדם.",
+  abi: "מזהה מחלת עורקים היקפית ברגליים, שהיא ביטוי נוסף לטרשת מערכתית.",
+};
+
 const PANELS = [
   { id:"menopause", title:"נשים בגיל המעבר — מעקב בריאות כולל", matchTags:["גיל המעבר","מנופאוזה","menopause","perimenopause","נשים בגיל המעבר","גלי חום"],
     blurb:"בגיל המעבר המיקוד הוא בריאות לב וכלי דם, סוכר, לחץ דם, שומנים, בלוטת התריס, עצם ובדיקות הסקר המתאימות לגיל. אצל נשים בריאות בנות 45 ומעלה עם תסמינים אופייניים, בדרך כלל אין צורך לאשר את גיל המעבר באמצעות FSH או אסטרדיול, משום שהרמות משתנות; בדיקות הורמונליות נשקלות בעיקר כשהתמונה אינה טיפוסית, בגיל צעיר יותר או לפי הנחיית רופא/ה.",
@@ -3159,8 +3203,8 @@ const PANELS = [
     blurb:"עייפות כרונית קשורה לעיתים קרובות לאנמיה, אך גם לחוסרים בברזל, B12, ויטמין D ולתפקוד לקוי של בלוטת התריס — לכן כדאי לבדוק את כל האשכול יחד ולא רק המוגלובין בודד.",
     testIds:["hgb","hct","mcv","rdw","ferritin","iron","tibc","transferrin","b12","folate","tsh","vitd"] },
   { id:"heart", title:"בריאות הלב / סיכון קרדיווסקולרי", matchTags:["לב","heart","קרדיווסקולרי","cardiovascular","כאבי חזה","chest pain"],
-    blurb:"הערכת סיכון לב מלאה חורגת מכולסטרול רגיל — כוללת גם את חלקיקי ה-LDL בפועל (ApoB), את הגורם הגנטי Lp(a), וסמן דלקתי, לצד בדיקות תפקודיות של הלב עצמו. חשוב לדעת: Lp(a) נקבע גנטית ואינו מושפע כמעט מתזונה, פעילות גופנית או משקל — כך שגם אדם רזה, צמחוני וספורטיבי יכול לשאת רמה גבוהה מבלי לדעת, כי בדיקות שומנים שגרתיות לא מזהות אותה כלל. וגם ציון סידן כלילי (CAC) יכול להטעות: הוא מזהה רק פלאק שכבר הסתייד, ולכן CAC של 0 אינו שולל בהכרח פלאק 'רך' לא-מסויד — במיוחד אצל מי שנושא סיכון גנטי כמו Lp(a) גבוה, שבו הפלאק עלול להיות עדיין לא מסויד. CT אנגיוגרפיה כלילית (הידועה גם כ'צנתור וירטואלי') היא הבדיקה שיכולה לראות גם את הפלאק הרך הזה, ולכן משלימה את התמונה כשיש חשד או גורמי סיכון בלתי מוסברים.",
-    testIds:["tchol","ldl","hdl","tg","apob","apoa1","lpa","ldl_particle","crp","homocysteine","ecg","stress","echo","cac","ct_angio"] },
+    blurb:CARDIO_RISK_SHARED_NOTE,
+    testIds:["tchol","ldl","hdl","tg","apob","apoa1","lpa","ldl_particle","crp","homocysteine","bp_sys","bp_dia","bp_routine","ecg","holter_ecg","holter_bp","stress","echo","troponin","bnp","cac","ct_angio","cath","carotid_us","abi"] },
   { id:"liver", title:"תפקודי כבד", matchTags:["כבד","liver","תפקודי כבד","liver function"],
     blurb:"תפקודי כבד נבדקים כמכלול — כל אנזים בודד מספר סיפור אחר (פגיעת תאים לעומת חסימת מרה), ולכן חשוב לראות את כולם יחד.",
     testIds:["alt","ast","ggt","alp","tbil","dbil","alb","tp","us_abd"] },
@@ -3176,6 +3220,9 @@ const PANELS = [
   { id:"autoimmune", title:"בירור מחלה אוטואימונית", matchTags:["אוטואימוני","autoimmune","זאבת","lupus","דלקת מפרקים","rheumatoid"],
     blurb:"בירור ראשוני של מחלה אוטואימונית משולב עם סמנים דלקתיים כלליים, לצד נוגדנים ספציפיים.",
     testIds:["ana","rf","crp","esr","tpo"] },
+  { id:"endometriosis", title:"בירור חשד לאנדומטריוזיס", matchTags:["אנדומטריוזיס","אנדומיטריוזיס","אנדומטריוסיס","endometriosis","כאבי אגן","מחזור כואב","כאבי מחזור"],
+    blurb:"אין בדיקת דם יחידה שמאבחנת אנדומטריוזיס. אולטרסאונד וגינלי הוא בדיקת הדימות הראשונית המקובלת לזיהוי אנדומטריומות ומחלה עמוקה; MRI עשוי לשמש למיפוי מחלה עמוקה או כשהאולטרסאונד אינו מספק. CA-125 יכול לעלות גם באנדומטריוזיס אך אינו בדיקת אבחון או סקר. אם יש דימום וסתי כבד, ספירת דם ופריטין בודקות אנמיה או חסר ברזל נלווים.",
+    testIds:["us_vaginal","mri","hgb","ferritin","ca125"] },
   { id:"pregnancy_prep", title:"תכנון הריון", matchTags:["הריון","pregnancy","תכנון הריון","הריון מתוכנן"],
     blurb:"לפני הריון מומלץ לבדוק מאגרי ברזל וויטמינים חיוניים, תפקוד בלוטת התריס, וכן לבצע סקר נשאות גנטית.",
     testIds:["folate","b12","ferritin","tsh","vitd","genetic_carrier","ogtt"] },
@@ -3659,6 +3706,23 @@ const STYLES = `
   }
   .idx-select { flex: 1.4; }
   .idx-value-input { flex: 1; width: 0; }
+  .idx-quick-entry-label, .idx-field-label {
+    font-size:12.5px; font-weight:700; color:#5B5346; margin-bottom:6px;
+  }
+  .idx-manual-entry-grid {
+    display:grid; grid-template-columns:minmax(0, 1.45fr) minmax(105px, .8fr) auto;
+    gap:8px; align-items:end; margin-top:8px;
+  }
+  .idx-manual-entry-grid .idx-select,
+  .idx-manual-entry-grid .idx-value-input { width:100%; min-width:0; box-sizing:border-box; }
+  .idx-manual-entry-grid .idx-add-btn { min-height:39px; padding:0 14px; }
+  .idx-field-wrap { min-width:0; }
+  @media (max-width: 420px) {
+    .idx-manual-entry-grid { grid-template-columns:minmax(0,1fr) auto; }
+    .idx-manual-entry-grid .idx-test-field { grid-column:1 / -1; }
+    .idx-manual-entry-grid .idx-value-field { grid-column:1; }
+    .idx-manual-entry-grid .idx-add-btn { grid-column:2; min-width:86px; padding:0 12px; }
+  }
   .idx-add-btn {
     background:#241F1B; color:#F7F4EE; border:none; border-radius:9px; padding:0 14px; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
@@ -3747,6 +3811,8 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.17.1</b> — תיקון מיזוג: כל יכולות 3.11–3.16.1 הוחזרו ונשמרו, כולל פאנלי נשים בגיל המעבר וגברים מגיל 50, טפסי Word מובנים, ייצוא פאנלים וייצוא/מחיקת מדידות; כל שיפורי 3.17.0 נשמרו.<br/>
+            <b>3.17.0</b> — שיפור הזנת תוצאות במובייל: שדה התוצאה הידני כעת רחב ומסומן בבירור; חיפוש מכל לשונית מעביר אוטומטית לאינדקס ומחפש בכל הקטגוריות; נוסף חיפוש מלא לאנדומטריוזיס (כולל איותים נפוצים) ופאנל ייעודי; הסבר הסיכון הקרדיווסקולרי מוצג גם בתוך כל בדיקה רלוונטית; ושמות הצנתורים הופרדו בבירור ל״צנתור וירטואלי — לא פולשני״ מול ״צנתור לב אבחנתי פולשני״.<br/>
             <b>3.16.1</b> — תיקון הורדת מסמכי ה-Word המובנים בפאנלים המומלצים לגברים ולנשים ב-Android: שמירת עותק במכשיר ופתיחת חלון שמירה/שיתוף מקורי.<br/>
             <b>3.16.0</b> — מסך פתיחה חדש לקיוסק, פתיחת כל בדיקה מראש העמוד, לשוניות מידע/הקשר קבועות בגלילה, הסבר כיצד כל בדיקה מתבצעת, מחיקת כל המדידות, ייצוא כל "הבדיקות שלי" ל-TXT, וייצוא TXT/Word מהפאנלים עם תמיכה ב-Android.<br/>
             <b>3.15.2</b> — טופס בדיקות הדם לנשים הוחלף בגרסה גנרית וכללית, ללא הקדמה המוגבלת לתזונה קטוגנית או דלת פחמימות; נשמר העיצוב הממורכז ושם הקובץ כולל „גנרי”.<br/>
@@ -3820,6 +3886,7 @@ function TestDetail({ test, onClose, onOpenRelated, matchReason, entries, search
   const pubmedUrl = test.en ? `https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent(test.en)}` : null;
   const detailRef = useRef(null);
   const procedureText = getProcedureText(test);
+  const cardioRiskRole = CARDIO_RISK_ROLES[test.id] || null;
 
   useEffect(() => {
     setActiveTab((conceptNote || routeNote) ? "connection" : "info");
@@ -3907,6 +3974,16 @@ function TestDetail({ test, onClose, onOpenRelated, matchReason, entries, search
               </div>
             )}
           </>
+        )}
+
+        {cardioRiskRole && (
+          <div className="idx-block" style={{background:"#F4F7FA", borderColor:"#CEDCE8"}}>
+            <div className="idx-block-label">🫀 איך הבדיקה משתלבת בהערכת סיכון לב</div>
+            <div className="idx-block-text">
+              {CARDIO_RISK_SHARED_NOTE}
+              <div style={{marginTop:8}}><b>התפקיד של הבדיקה הזו:</b> {cardioRiskRole}</div>
+            </div>
+          </div>
         )}
 
         {showInfo && (
@@ -4723,11 +4800,12 @@ function MyResults({ entries, setEntries }) {
         />
       </div>
       <div style={{marginBottom: 6}}>
+        <div className="idx-quick-entry-label">הזנת תוצאה מהירה — יש לכתוב גם את שם הבדיקה וגם את הערך</div>
         <div style={{display:"flex", gap:6}}>
           <input
             className="idx-value-input"
             style={{flex:1, width:"auto", fontSize:15, padding:"12px 12px"}}
-            placeholder='כתוב/י שם בדיקה + ערך, למשל: HbA1c 6.1'
+            placeholder='לדוגמה: כולסטרול HDL 53'
             value={quickText}
             onChange={e => setQuickText(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter") quickAdd(); }}
@@ -4762,13 +4840,19 @@ function MyResults({ entries, setEntries }) {
         )}
 
         {showManualFallback && (
-          <div style={{display:"flex", gap:6, marginTop:8}}>
-            <select className="idx-select" style={{flex:1.4}} value={manualId} onChange={e => setManualId(e.target.value)}>
-              {BLOOD.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-            <input className="idx-value-input" style={{flex:1, width:0}} placeholder="ערך" value={manualValue}
-              onChange={e => setManualValue(e.target.value)} inputMode="decimal" />
-            <button className="idx-add-btn" onClick={manualAdd}><Plus size={18}/></button>
+          <div className="idx-manual-entry-grid">
+            <div className="idx-field-wrap idx-test-field">
+              <div className="idx-field-label">בחר/י בדיקה</div>
+              <select className="idx-select" value={manualId} onChange={e => setManualId(e.target.value)}>
+                {BLOOD.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </div>
+            <div className="idx-field-wrap idx-value-field">
+              <div className="idx-field-label">תוצאת המדידה</div>
+              <input className="idx-value-input" placeholder="לדוגמה: 53" value={manualValue}
+                onChange={e => setManualValue(e.target.value)} onKeyDown={e => { if (e.key === "Enter") manualAdd(); }} inputMode="decimal" />
+            </div>
+            <button className="idx-add-btn" onClick={manualAdd}><Plus size={18}/> הוסף</button>
           </div>
         )}
       </div>
@@ -4784,14 +4868,20 @@ function MyResults({ entries, setEntries }) {
 
       {manualOpen && (
         <div className="idx-block" style={{marginBottom:14}}>
-          <div className="idx-block-label">בחר/י בדיקה מהרשימה והזן/י ערך</div>
-          <div style={{display:"flex", gap:6, marginTop:8}}>
-            <select className="idx-select" style={{flex:1.4}} value={manualId} onChange={e => setManualId(e.target.value)}>
-              {BLOOD.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-            <input className="idx-value-input" style={{flex:1, width:0}} placeholder="ערך" value={manualValue}
-              onChange={e => setManualValue(e.target.value)} inputMode="decimal" />
-            <button className="idx-add-btn" onClick={manualAdd}><Plus size={18}/></button>
+          <div className="idx-block-label">הוספת בדיקה בודדת</div>
+          <div className="idx-manual-entry-grid">
+            <div className="idx-field-wrap idx-test-field">
+              <div className="idx-field-label">בחר/י בדיקה</div>
+              <select className="idx-select" value={manualId} onChange={e => setManualId(e.target.value)}>
+                {BLOOD.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </select>
+            </div>
+            <div className="idx-field-wrap idx-value-field">
+              <div className="idx-field-label">תוצאת המדידה</div>
+              <input className="idx-value-input" placeholder="לדוגמה: 53" value={manualValue}
+                onChange={e => setManualValue(e.target.value)} onKeyDown={e => { if (e.key === "Enter") manualAdd(); }} inputMode="decimal" />
+            </div>
+            <button className="idx-add-btn" onClick={manualAdd}><Plus size={18}/> הוסף</button>
           </div>
         </div>
       )}
@@ -5343,7 +5433,7 @@ function BloodTestIndexInner() {
       recognition.onresult = (e) => {
         clearTimeout(safetyTimeout);
         const transcript = Array.from(e.results).map(r => r[0].transcript).join("");
-        setQuery(transcript);
+        handleGlobalSearchChange(transcript);
       };
       recognition.onerror = (e) => {
         clearTimeout(safetyTimeout);
@@ -5373,6 +5463,17 @@ function BloodTestIndexInner() {
     }
   };
   const [selectedReason, setSelectedReason] = useState(null);
+
+  const handleGlobalSearchChange = (value) => {
+    setQuery(value);
+    if (String(value || "").trim()) {
+      setView("index");
+      setCategory("all");
+      setSelectedTest(null);
+      setSelectedReason(null);
+    }
+  };
+
   const [entries, setEntries] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -5747,8 +5848,8 @@ function BloodTestIndexInner() {
         </div>
         <div className="idx-search-wrap">
           <Search size={17} color="#8A8175" />
-          <input placeholder="חיפוש בדיקה / תסמין..." value={query} onChange={e => setQuery(e.target.value)} />
-          {query && <X size={16} color="#8A8175" style={{cursor:"pointer"}} onClick={() => setQuery("")} />}
+          <input placeholder="חיפוש בדיקה / תסמין..." value={query} onChange={e => handleGlobalSearchChange(e.target.value)} />
+          {query && <X size={16} color="#8A8175" style={{cursor:"pointer"}} onClick={() => handleGlobalSearchChange("")} />}
           <button
             onClick={() => { if (isListening) return; setShowLangPicker(p => !p); }}
             style={{
@@ -5792,7 +5893,7 @@ function BloodTestIndexInner() {
                 key={s}
                 className="idx-chip"
                 style={{cursor:"pointer", background:"#F1EBDD", color:"#5B5346"}}
-                onClick={() => setQuery(s)}
+                onClick={() => handleGlobalSearchChange(s)}
               >
                 {s}
               </span>
