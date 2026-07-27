@@ -16,7 +16,7 @@ if (typeof window !== "undefined" && !window.storage) {
   };
 }
 
-const APP_VERSION = "3.17.1";
+const APP_VERSION = "3.17.2";
 /* סיסמה חדשה (הרשמה/איפוס): 8+ תווים, לפחות אות אחת וספרה אחת */
 const isStrongPass = (p) => p.length >= 8 && /[a-zA-Zא-ת]/.test(p) && /[0-9]/.test(p);
 const APP_UPDATED = "יולי 2026";
@@ -1841,34 +1841,42 @@ const BLOOD = [
     importance:"מסייעת לאבחן מחלת תריס אוטואימונית.", reliability:"מהימנה.",
     prep:"אין צורך בצום.", coverage:"ניתנת לפי הפניה ספציפית, לרוב מכוסה בסל.", related:["tsh"] },
   { id:"iron", name:"ברזל בסרום", en:"Serum Iron", unit:"מק״ג/ד״ל", range:"60–170",
-    tags:["אנמיה","עייפות","קוליטיס","colitis","ibd"],
-    topicNote:"דימום כרוני ממעי דלקתי (כמו בקוליטיס כיבית) הוא סיבה שכיחה לירידה בברזל בסרום, ולכן הבדיקה נכללת במעקב שגרתי אחר חולי מעי דלקתי.",
-    desc:"כמות הברזל החופשי בזרם הדם.",
-    high:"עודף ברזל, המוכרומטוזיס, נטילת תוספי ברזל.", low:"חוסר ברזל תזונתי, דימום כרוני.",
-    importance:"נבדק במסגרת בירור אנמיה, אך פחות מדויק לבדו מפריטין.", reliability:"תנודתי מאוד במהלך היום — פחות אמין כבודד.",
-    prep:"מומלץ בבוקר, לעיתים בצום.", coverage:"כלולה בסל הבריאות.", related:["ferritin","tibc","transferrin"] },
-  { id:"ferritin", name:"פריטין", en:"Ferritin", unit:"ng/mL", range:"30–400 (גברים), 15–150 (נשים)",
-    tags:["אנמיה","ברזל","עייפות","נשירת שיער","קוליטיס","colitis","ibd"],
-    topicNote:"בקוליטיס ומחלת מעי דלקתית, דימום כרוני מרירית המעי עלול לגרום לחוסר ברזל, אך פריטין עצמו גם עולה כסמן דלקתי — כך שרמה 'תקינה' לא בהכרח שוללת חוסר ברזל אמיתי כשיש דלקת פעילה, ולעיתים נדרשות בדיקות ברזל נוספות לפירוש מדויק.",
-    desc:"חלבון האוגר ברזל בגוף — משקף את מאגרי הברזל הכוללים.",
-    high:"עודף ברזל, אך גם עולה כסמן דלקתי (עלול להטעות בדלקת חריפה).",
-    low:"הסמן המדויק ביותר לחוסר ברזל, גם בשלב מוקדם.",
-    importance:"הבדיקה החשובה ביותר לאבחון חוסר ברזל.", reliability:"מהימנה מאוד, אך יש לפרש בזהירות בנוכחות דלקת.",
-    prep:"אין צורך בצום.", coverage:"כלולה בסל הבריאות.", related:["iron","tibc","hgb"] },
+    tags:["אנמיה","עייפות","קוליטיס","colitis","ibd","המוכרומטוזיס","hemochromatosis","haemochromatosis","עומס ברזל","iron overload"],
+    topicNote:"ברזל בסרום משתנה במהלך היום ולכן אינו מאבחן לבדו חוסר או עודף ברזל. בחשד להמוכרומטוזיס מפרשים אותו יחד עם TIBC או טרנספרין, רוויית טרנספרין ופריטין.",
+    desc:"כמות הברזל הנישאת בזרם הדם בזמן הבדיקה.",
+    high:"עודף ברזל אפשרי, המוכרומטוזיס, נטילת תוספי ברזל או מצבים נוספים.", low:"חוסר ברזל תזונתי, דימום כרוני או דלקת.",
+    importance:"משלים בירור אנמיה ומאזן ברזל; אינו מדד אבחנתי עצמאי.", reliability:"תנודתי במהלך היום — יש לפרש כחלק מפאנל ברזל.",
+    prep:"מומלץ בבוקר; יש לפעול לפי הנחיות המעבדה לגבי צום ותוספי ברזל.", coverage:"כלולה בסל הבריאות.", related:["ferritin","tibc","transferrin","tsat","hfe_genetic"] },
+  { id:"ferritin", name:"פריטין", en:"Ferritin / Serum Ferritin", unit:"ng/mL", range:"30–400 (גברים), 15–150 (נשים)",
+    tags:["אנמיה","ברזל","עייפות","נשירת שיער","קוליטיס","colitis","ibd","המוכרומטוזיס","המוכרומטוזיס תורשתי","hemochromatosis","haemochromatosis","hereditary hemochromatosis","עומס ברזל","עודף ברזל","iron overload","serum ferritin"],
+    topicNote:"פריטין משקף מאגרי ברזל, ולכן רמה גבוהה יכולה להשתלב בבירור עומס ברזל או המוכרומטוזיס. עם זאת, פריטין לבדו אינו מאבחן: הוא עלול לעלות גם בדלקת, כבד שומני, צריכת אלכוהול, זיהום ומצבים מטבוליים. בחשד לעומס ברזל מפרשים אותו יחד עם רוויית טרנספרין ובדיקות נוספות.",
+    desc:"חלבון האוגר ברזל בגוף — משקף בקירוב את מאגרי הברזל הכוללים.",
+    high:"עודף ברזל אפשרי, אך גם דלקת, מחלת כבד, זיהום ומצבים מטבוליים יכולים להעלות אותו.",
+    low:"סמן רגיש לחוסר ברזל, לעיתים עוד לפני ירידת ההמוגלובין.",
+    importance:"מרכזי בבירור חוסר ברזל ובעומס ברזל, אך אינו בדיקת אבחנה עצמאית להמוכרומטוזיס.", reliability:"מהימנה מאוד למאגרי ברזל כאשר מביאים בחשבון דלקת ומחלות נלוות.",
+    prep:"אין צורך בצום ברוב המעבדות.", coverage:"כלולה בסל הבריאות.", related:["iron","tibc","transferrin","tsat","hgb","crp","alt","ast","hfe_genetic"] },
   { id:"tibc", name:"קיבולת קשירת ברזל כללית", en:"TIBC", unit:"מק״ג/ד״ל", range:"250–450",
-    tags:["אנמיה","ברזל","iron","anemia"],
-    topicNote:"TIBC מודד את 'התיאבון' של הדם לברזל נוסף — כשיש חוסר ברזל TIBC עולה כי הגוף מנסה לקלוט כל ברזל זמין; כשיש עודף ברזל או דלקת כרונית הוא יורד. נבדק תמיד יחד עם ברזל ופריטין.",
-    desc:"מודדת את יכולת הדם לקשור ברזל נוסף.",
-    high:"חוסר ברזל.", low:"עודף ברזל, דלקת כרונית.",
-    importance:"נבדקת יחד עם ברזל ופריטין להערכה מלאה של מאזן הברזל.", reliability:"מהימנה.",
-    prep:"אין צורך בצום.", coverage:"כלולה בסל הבריאות.", related:["iron","ferritin","transferrin"] },
+    tags:["אנמיה","ברזל","iron","anemia","המוכרומטוזיס","hemochromatosis","עומס ברזל","iron overload"],
+    topicNote:"TIBC משקף את כמות אתרי הקישור הזמינים לברזל ומשמש יחד עם ברזל לחישוב רוויית טרנספרין. בחוסר ברזל הוא נוטה לעלות; בעומס ברזל או בדלקת כרונית הוא עשוי לרדת.",
+    desc:"מודדת את היכולת הכוללת של חלבוני הדם לקשור ברזל.",
+    high:"חוסר ברזל אפשרי.", low:"עודף ברזל אפשרי, דלקת כרונית, מחלת כבד או תת-תזונה.",
+    importance:"משלימה את ברזל ופריטין ומאפשרת הערכת רוויית טרנספרין.", reliability:"מהימנה כחלק מפאנל ברזל.",
+    prep:"יש לפעול לפי הנחיות המעבדה.", coverage:"כלולה בסל הבריאות.", related:["iron","ferritin","transferrin","tsat"] },
   { id:"transferrin", name:"טרנספרין", en:"Transferrin", unit:"mg/dL", range:"200–360",
-    tags:["אנמיה","ברזל","iron","anemia"],
-    topicNote:"טרנספרין הוא החלבון שמוביל בפועל את הברזל בזרם הדם — התנהגותו דומה ל-TIBC ומשלימה אותו, ועוזרת להבדיל בין חוסר ברזל אמיתי לירידה בברזל שמקורה בדלקת כרונית.",
-    desc:"החלבון הנושא ברזל בדם.",
-    high:"חוסר ברזל.", low:"דלקת כרונית, תת-תזונה, מחלת כבד.",
-    importance:"משלים את בירור מאזן הברזל.", reliability:"מהימנה.",
-    prep:"אין צורך בצום.", coverage:"ניתנת לפי הפניה, לרוב מכוסה.", related:["iron","tibc"] },
+    tags:["אנמיה","ברזל","iron","anemia","המוכרומטוזיס","hemochromatosis","עומס ברזל","iron overload"],
+    topicNote:"טרנספרין הוא החלבון שנושא ברזל. ריכוזו, יחד עם ברזל בסרום, מסייע לחשב או לפרש רוויית טרנספרין ולהבדיל בין חוסר ברזל, דלקת ועומס ברזל.",
+    desc:"החלבון המרכזי הנושא ברזל בדם.",
+    high:"חוסר ברזל אפשרי.", low:"דלקת כרונית, תת-תזונה, מחלת כבד או עומס ברזל אפשרי.",
+    importance:"משלים את בירור מאזן הברזל ואת חישוב רוויית הטרנספרין.", reliability:"מהימנה כחלק מפאנל ברזל.",
+    prep:"אין צורך בצום ברוב המעבדות.", coverage:"ניתנת לפי הפניה, לרוב מכוסה.", related:["iron","tibc","ferritin","tsat"] },
+  { id:"tsat", name:"רוויית טרנספרין", en:"Transferrin Saturation (TSAT)", unit:"%", range:"20–45",
+    tags:["ברזל","iron","רוויית ברזל","iron saturation","transferrin saturation","tsat","סטורציית טרנספרין","המוכרומטוזיס","המוכרומטוזיס תורשתי","hemochromatosis","haemochromatosis","hereditary hemochromatosis","עומס ברזל","עודף ברזל","iron overload"],
+    topicNote:"רוויית טרנספרין היא שיעור אתרי הקישור של טרנספרין שכבר תפוסים בברזל. זו אחת מבדיקות הפתיחה המרכזיות בחשד לעומס ברזל או המוכרומטוזיס, במיוחד כשהיא גבוהה באופן מתמשך יחד עם פריטין מוגבר. ערך יחיד אינו אבחנה ויש לפרשו לפי מין, גיל, צום, תוספים, דלקת ותפקודי כבד.",
+    desc:"אחוז הטרנספרין הקשור לברזל; מחושב לרוב מברזל ומ-TIBC או טרנספרין.",
+    high:"עשוי להתאים לעומס ברזל או המוכרומטוזיס, אך דורש אימות והקשר קליני.",
+    low:"עשוי להתאים לחוסר ברזל או למצב דלקתי.",
+    importance:"בדיקת פתיחה מרכזית בבירור עומס ברזל, יחד עם פריטין.", reliability:"שימושית מאוד כחלק מפאנל ברזל; אינה אבחנתית לבדה.",
+    prep:"יש לפעול לפי הנחיות המעבדה; לעיתים מבקשים דגימת בוקר וצום.", coverage:"זמינות וכיסוי משתנים בין קופות ומעבדות.", related:["ferritin","iron","tibc","transferrin","hfe_genetic","alt","ast"] },
   { id:"b12", name:"ויטמין B12", en:"Vitamin B12", unit:"pg/mL", range:"200–900",
     tags:["אנמיה","עייפות","ויטמינים","חרדה","anxiety","סכיזופרניה","schizophrenia","פסיכוזה","psychosis"],
     topicNote:"ויטמין B12 נדרש לייצור תקין של תאי דם אדומים ולתחזוקת נדן העצבים — חוסר בו גורם גם לאנמיה (תאים גדולים, MCV גבוה) וגם לנזק עצבי (נימול, חוסר יציבות בהליכה) שעלול להיות בלתי הפיך אם לא מטופל בזמן.",
@@ -2729,6 +2737,16 @@ const SCREENING = [
     freq:"מומלצת פעם אחת לפני הריון או בתחילתו.",
     coverage:"כלולה בסל הבריאות במסגרת תוכנית הסקר הגנטי הארצית, לפי רקע עדתי ומשפחתי.",
     related:[] },
+  { id:"hfe_genetic", name:"בדיקה גנטית ל-HFE", en:"HFE Genetic Test", type:"procedure",
+    tags:["HFE","בדיקת HFE","hfe mutation","המוכרומטוזיס","המוכרומטוזיס תורשתי","hemochromatosis","haemochromatosis","hereditary hemochromatosis","עומס ברזל","עודף ברזל","iron overload","גנטיקה","genetics"],
+    topicNote:"בדיקה גנטית ל-HFE מחפשת וריאנטים שכיחים הקשורים להמוכרומטוזיס תורשתי. היא אינה בדיקת סקר כללית לכל אדם ואינה מחליפה פריטין ורוויית טרנספרין; שוקלים אותה כאשר בדיקות הברזל וההקשר הקליני מעלים חשד מתאים.",
+    desc:"בדיקת דם או רוק לאיתור וריאנטים בגֵן HFE הקשורים להמוכרומטוזיס תורשתי.",
+    what:"מסייעת לאשר או לשלול נטייה גנטית שכיחה לעומס ברזל תורשתי כאשר קיימת הצדקה קלינית ומעבדתית.",
+    procedure:"דגימת דם או רוק; הפענוח נעשה יחד עם היסטוריה משפחתית, רוויית טרנספרין ופריטין.",
+    importance:"בדיקת אישור ממוקדת בחשד מתאים — לא אבחנה עצמאית ולא סקר אוכלוסייה שגרתי.",
+    reliability:"מהימנה לזיהוי הווריאנטים שנבדקים, אך אינה מזהה את כל הסיבות הגנטיות או הנרכשות לעומס ברזל.",
+    prep:"אין צורך בצום.", freq:"פעם אחת כאשר קיימת התוויה רפואית.",
+    coverage:"הזכאות והכיסוי תלויים בהתוויה, בקופה ובייעוץ גנטי או רפואי.", related:["ferritin","tsat","iron","tibc","transferrin","alt","ast"] },
   { id:"aaa_us", name:"אולטרסאונד למפרצת אבי העורקים הבטנית", en:"AAA Screening Ultrasound", type:"procedure",
     tags:["אבי העורקים","aorta","מפרצת","aneurysm"],
     topicNote:"מפרצת אבי העורקים מתפתחת בשקט וללא תסמינים עד שהיא נקרעת — אירוע שעלול להיות קטלני. הבדיקה הפשוטה הזו תופסת את ההרחבה המסוכנת לפני שהיא מגיעה לנקודה קריטית.",
@@ -3065,6 +3083,461 @@ function findRouteNote(testId, query) {
   return null;
 }
 
+/* =========================================================
+   WHY CARNIVORE CONDITION CATALOGUE
+   Naming source: WhyCarnivore.com condition headings (Part 11), plus
+   Iron Overload / Hemochromatosis from section 6.3.1.11.
+   The site is used only as a terminology/index source. Test relationships
+   below are conservative clinical navigation links, not endorsement of
+   testimonial claims and not diagnostic rules.
+   ========================================================= */
+const WHY_CARNIVORE_GROUP_DEFAULT_TESTS = {
+  autoimmune: ["wbc","crp","esr","ana"],
+  musculoskeletal: ["crp","esr","msk_us","mri"],
+  neuropsych: ["hgb","gluc","tsh","b12","folate","na","ca","mri"],
+  cancer: ["hgb","wbc","plt","crp","ct_chest","mri","pet_ct"],
+  pain: ["crp","esr","tsh","vitd","ck"],
+  dental: [],
+  digestive: ["hgb","wbc","crp","esr","alt","ast","alb","us_abd"],
+  ent: ["wbc","crp","hearing"],
+  eating: ["hgb","gluc","na","k","mg","ca","alb","tp","tsh"],
+  energy: ["hgb","ferritin","iron","b12","folate","tsh","vitd","gluc"],
+  eye: ["eye_glaucoma","gluc","hba1c"],
+  foot: ["gluc","hba1c","msk_us"],
+  hair: ["hgb","ferritin","iron","tsh","vitd","zinc"],
+  cardio: ["bp_routine","ecg","tchol","ldl","hdl","tg","apob","lpa","gluc","hba1c"],
+  reproductive: ["tsh","fsh","lh","estradiol","progesterone","testo","prolactin"],
+  inflammation: ["wbc","crp","esr","ana","msk_us"],
+  renal: ["creat","urea","egfr","urinalysis","urine_acr","us_abd"],
+  liver: ["alt","ast","ggt","alp","tbil","dbil","alb","us_abd"],
+  lymphatic: ["hgb","wbc","plt","alb","creat","tsh","echo"],
+  metabolic: ["gluc","hba1c","insulin","tchol","ldl","hdl","tg","tsh","bp_routine"],
+  nerve: ["gluc","hba1c","b12","folate","tsh","ca","mg","mri"],
+  respiratory: ["wbc","crp","cxr","ct_chest"],
+  skin: ["skin_check","eos","total_ige","crp","ana","gluc"],
+  sleep: ["tsh","ferritin","vitd","mg","gluc"],
+  weight: ["gluc","hba1c","insulin","tchol","ldl","hdl","tg","tsh","cortisol","dexa_body_comp"],
+  other: ["hgb","wbc","crp","esr","gluc","tsh"],
+};
+
+const WHY_CARNIVORE_GROUP_LABELS = {
+  autoimmune: "מערכת החיסון / אוטואימוני",
+  musculoskeletal: "עצמות, מפרקים ושרירים",
+  neuropsych: "מוח, התנהגות ומערכת העצבים",
+  cancer: "אונקולוגיה",
+  pain: "כאב כרוני",
+  dental: "פה ושיניים",
+  digestive: "מערכת העיכול",
+  ent: "אף-אוזן-גרון",
+  eating: "הפרעות אכילה",
+  energy: "עייפות ואנרגיה",
+  eye: "עיניים וראייה",
+  foot: "כפות רגליים ובהונות",
+  hair: "שיער וציפורניים",
+  cardio: "לב, כלי דם ודם",
+  reproductive: "הורמונים ופוריות",
+  inflammation: "דלקת",
+  renal: "כליות, שלפוחית וכיס מרה",
+  liver: "כבד",
+  lymphatic: "מערכת הלימפה",
+  metabolic: "מטבולי ואנדוקריני",
+  nerve: "עצבים ומערכת העצבים",
+  respiratory: "נשימה וריאות",
+  skin: "עור",
+  sleep: "שינה",
+  weight: "משקל",
+  other: "אחר",
+};
+
+const WHY_CARNIVORE_GROUP_NOTES = {
+  neuropsych: "בדיקות דם והדמיה אינן מאבחנות לבדן מצב נפשי או נוירולוגי; הן עשויות לשלול גורמים גופניים, לזהות סיבוכים או לתמוך בבירור מכוון.",
+  cancer: "סמני גידול ובדיקות דם אינם בדיקות סקר או אבחנה עצמאיות ברוב סוגי הסרטן. הבחירה בהדמיה, ביופסיה או בדיקת סקר תלויה באיבר, גיל, תסמינים וסיכון אישי.",
+  dental: "רוב מצבי הפה והשיניים מאובחנים בבדיקה קלינית וצילום דנטלי; אין בדיקת דם שגרתית שמאבחנת אותם.",
+  skin: "רוב מצבי העור מאובחנים בבדיקה קלינית ולעיתים בביופסיה. הבדיקות המוצגות עשויות לסייע בבירור גורם מערכתי או במעקב בלבד.",
+  eye: "רוב מחלות העיניים דורשות בדיקת עיניים ייעודית. בדיקות דם רלוונטיות בעיקר כאשר קיים קשר לסוכרת או למחלה מערכתית.",
+  other: "הבדיקות המוצגות הן נקודת פתיחה אפשרית בלבד; לעיתים הבירור העיקרי הוא קליני או באמצעות הדמיה ייעודית.",
+};
+
+const WHY_CARNIVORE_TEST_ROLE_OVERRIDES = {
+  "6.3.1.11": {
+    ferritin: "בדיקת פתיחה ותמיכה — אינה אבחנה לבדה",
+    tsat: "בדיקת פתיחה מרכזית לעומס ברזל",
+    iron: "בדיקה משלימה וחלק מחישוב הרוויה",
+    tibc: "בדיקה משלימה וחלק מחישוב הרוויה",
+    transferrin: "בדיקה משלימה לפירוש מאזן הברזל",
+    hgb: "הערכת מצב הדם וסיבוכים נלווים",
+    alt: "הערכת השפעה אפשרית על הכבד",
+    ast: "הערכת השפעה אפשרית על הכבד",
+    hfe_genetic: "בדיקת אישור גנטית כאשר קיים חשד מתאים",
+  },
+};
+
+function inferConditionTestRole(section, testId) {
+  const override = WHY_CARNIVORE_TEST_ROLE_OVERRIDES[section]?.[testId];
+  if (override) return override;
+  const test = TEST_MAP[testId];
+  if (!test) return "בירור או מעקב אפשרי";
+  if (["crp","esr","wbc","eos","baso","total_ige"].includes(testId)) return "סמן תומך או לא-ספציפי";
+  if (["hgb","hct","mcv","rdw","plt","alb","tp"].includes(testId)) return "הערכת השפעה, חסר או סיבוך נלווה";
+  if (test.type === "procedure") return "בדיקה ייעודית, הדמיה או אישור לפי ההקשר";
+  return "בדיקה אפשרית בבירור או במעקב";
+}
+
+const WHY_CARNIVORE_CONDITION_ROWS = `
+6.3.1.11|autoimmune|המוכרומטוזיס / עומס ברזל תורשתי|Hemochromatosis / Iron Overload|ferritin,tsat,iron,tibc,transferrin,hgb,alt,ast,hfe_genetic|haemochromatosis;hereditary hemochromatosis;HFE hemochromatosis;עודף ברזל;עומס ברזל|בבירור ראשוני בודקים בדרך כלל רוויית טרנספרין ופריטין יחד. פריטין לבדו אינו מאבחן ועלול לעלות גם בדלקת, כבד שומני, אלכוהול ומצבים נוספים. בדיקת HFE עשויה לאשר נטייה תורשתית כאשר התמונה מתאימה.
+11.1.1|autoimmune|אלרגיות / אלרגיה עונתית / קדחת השחת|Allergies / Seasonal Allergies / Hay Fever|eos,total_ige,baso|allergy;allergic rhinitis;rhinitis;נזלת אלרגית|
+11.1.2|autoimmune|אנגיואדמה|Angioedema|eos,total_ige,complement|angioneurotic edema;בצקת אלרגית|
+11.1.3|autoimmune|צליאק / מחלת הכרסת|Celiac Disease|ttg_iga,hgb,ferritin,iron,b12,folate,vitd,alb|coeliac disease;gluten intolerance;רגישות לגלוטן|
+11.1.4|autoimmune|דלקת ושט אאוזינופילית|Eosinophilic Esophagitis (EoE)|eos,total_ige,hgb,alb|EE;EoE;אאוזינופיליק אסופגיטיס|
+11.1.5|autoimmune|נגיף אפשטיין-בר / מחלת הנשיקה|Epstein-Barr Virus (EBV) / Infectious Mononucleosis / Mono|wbc,lymph,alt,ast|EBV;mononucleosis;mono;מחלת הנשיקה|
+11.1.6|autoimmune|תחלואה תכופה / זיהומים חוזרים|Frequent Sickness / Infection|wbc,neut,lymph,crp,esr|recurrent infection;frequent infections;זיהומים חוזרים|
+11.1.7|autoimmune|אי-סבילות להיסטמין|Histamine Intolerance|eos,total_ige|histamine sensitivity;רגישות להיסטמין|
+11.1.8|autoimmune|זאבת|Lupus|ana,dsdna,complement,crp,esr,urinalysis,creat|systemic lupus erythematosus;SLE;לופוס|
+11.1.9|autoimmune|מחלת ליים / ליים כרונית|Lyme Disease / Chronic Lyme Disease (CLD)|wbc,crp,esr,alt,ast|borreliosis;CLD;בורליוזיס|
+11.1.10|autoimmune|מחלת רקמת חיבור מעורבת|Mixed Connective Tissue Disease (MCTD)|ana,crp,esr,ck,urinalysis|MCTD;מחלת רקמת חיבור משולבת|
+11.1.11|autoimmune|מיאסתניה גרביס|Myasthenia Gravis (MG)|tsh,ck,ct_chest|MG;מיאסטניה גרביס|
+11.1.12|autoimmune|אנמיה ממארת / אנמיה על שם אדיסון|Pernicious Anemia / Addison's Anemia|hgb,mcv,rdw,b12,folate,homocysteine|pernicious anaemia;B12 deficiency anemia;אנמיה פרניציוזה|
+11.1.13|autoimmune|דלקת מפרקים שגרונית|Rheumatoid Arthritis|rf,anti_ccp,crp,esr,msk_us|RA;דלקת מפרקים ראומטואידית|
+11.1.14|autoimmune|תסמונת שיוגרן|Sjogren's Syndrome|ana,crp,esr,urinalysis|Sjögren syndrome;sjogrens;שיוגרן|
+11.1.15|autoimmune|תסמונת האדם הנוקשה|Stiff Person Syndrome (SPS) / Stiff Man Syndrome|ck,mri,gluc|SPS;stiff person;stiff man syndrome|
+11.1.16|autoimmune|סקלרודרמה / טרשת מערכתית / תסמונת CREST|Scleroderma / Systemic Sclerosis / CREST Syndrome|ana,crp,esr,creat,urinalysis,echo|systemic sclerosis;CREST;טרשת מערכתית|
+11.2.1|musculoskeletal|דלקת מפרקים|Arthritis|crp,esr,rf,anti_ccp,uric,msk_us|arthropathy;ארתריטיס|
+11.2.1.1|musculoskeletal|דלקת חוליות מקשחת / מחלת בכטרב|Ankylosing Spondylitis (AS) / Bechterew's Disease|hla_b27,crp,esr,mri|AS;ankylosing spondylitis;בכטרב|
+11.2.1.2|musculoskeletal|דלקת מפרקים פסוריאטית|Psoriatic Arthritis|crp,esr,msk_us,mri|PsA;פסוריאטיק ארתריטיס|
+11.2.2|musculoskeletal|זיזי עצם / אוסטאופיטים|Bone Spurs / Osteophyte|msk_us,mri,ca,vitd|osteophytes;דורבן עצם|
+11.2.3|musculoskeletal|התכווצויות שרירים|Cramping|na,k,mg,ca,ck|muscle cramps;cramps;קרמפים|
+11.2.4|musculoskeletal|תסמונת אהלרס-דנלוס|Ehlers-Danlos Syndrome (EDS)|echo,mri,genetic_carrier|EDS;Ehlers Danlos;אהלרס דנלוס|
+11.2.5|musculoskeletal|כתף קפואה / קפסוליטיס דביק|Frozen Joints / Adhesive Capsulitis|msk_us,mri,gluc,hba1c,tsh|frozen shoulder;adhesive capsulitis;כתף קפואה|
+11.2.6|musculoskeletal|גאוט / שיגדון|Gout|uric,creat,egfr,crp,msk_us|podagra;שיגדון|
+11.2.7|musculoskeletal|כאבי מפרקים|Joint Pain|crp,esr,rf,anti_ccp,uric,msk_us|arthralgia;כאב מפרקים|
+11.2.7.1|musculoskeletal|אוסטאוארתריטיס / שחיקת סחוס|Osteoarthritis|msk_us,mri,crp|OA;degenerative joint disease;שחיקת מפרקים|
+11.2.8|musculoskeletal|מחלת אוסגוד-שלטר / אוסטאוכונדרוזיס|Osgood-Schlatter Disease / Osteochondrosis|mri,msk_us,vitd,ca|Osgood Schlatter;אוסגוד שלטר|
+11.2.9|musculoskeletal|אוסטאופורוזיס / דלדול עצם|Osteoporosis|dexa_bone,ca,phos,vitd,pth,alp|bone loss;דלדול עצם|
+11.2.10|musculoskeletal|סרקופניה / אובדן מסת שריר|Sarcopenia|dexa_body_comp,hgb,vitd,tsh,testo|muscle loss;אובדן שריר|
+11.2.11|musculoskeletal|עקמת|Scoliosis|mri|עקמת עמוד השדרה|
+11.2.12|musculoskeletal|היצרות תעלת השדרה|Spinal Stenosis / Spinal Narrowing|mri|lumbar stenosis;cervical stenosis;סטנוזיס ספינלי|
+11.2.13|musculoskeletal|עיכוב גדילה / קומה נמוכה|Stunted Growth|igf1,tsh,ft4,hgb,ca,vitd|growth failure;short stature;כשל גדילה|
+11.3.1|neuropsych|בריאות הנפש — כללי / מספר מצבים|Mental Health - General / Several|hgb,gluc,tsh,b12,folate,na,ca,vitd||
+11.3.2|neuropsych|אגורפוביה|Agoraphobia|tsh,gluc,hgb,ecg||
+11.3.3|neuropsych|טרשת אמיוטרופית צידית / מחלת לו גריג|Amyotrophic Lateral Sclerosis (ALS) / Lou Gehrig's Disease|mri,ck,b12,tsh|ALS;motor neuron disease;מחלת ניוון שרירים|
+11.3.4|neuropsych|חרדה / התקפי פאניקה|Anxiety / Panic Attacks|tsh,gluc,hgb,ecg,ca,b12,vitd|panic disorder;התקף חרדה|
+11.3.5|neuropsych|הפרעת קשב וריכוז והיפראקטיביות|Attention-Deficit/Hyperactivity Disorder (ADHD)|hgb,ferritin,tsh,b12,vitd|ADHD;ADD;הפרעת קשב|
+11.3.6|neuropsych|הזיות שמיעה|Auditory Hallucinations|hgb,gluc,tsh,b12,folate,na,ca,mri|hearing voices;קולות בראש|
+11.3.7|neuropsych|אוטיזם / הספקטרום האוטיסטי|Autism|hgb,ferritin,b12,folate,vitd,tsh|ASD;autism spectrum disorder;אוטיזם|
+11.3.8|neuropsych|הפרעה דו-קוטבית / מאניה דפרסיה|Bipolar Disorder / Manic Depression|tsh,gluc,na,ca,b12,folate|bipolar;manic depression;מאניה דפרסיה|
+11.3.9|neuropsych|הפרעת דיסמורפיה של הגוף|Body Dysmorphia / Body Dysmorphic Disorder|tsh,hgb,b12,folate|BDD;body dysmorphic disorder;דיסמורפיה גופנית|
+11.3.10|neuropsych|הפרעת אישיות גבולית|Borderline Personality Disorder (BPD)|tsh,hgb,b12,folate|BPD;אישיות גבולית|
+11.3.11|neuropsych|ערפול מוחי / צלילות מחשבתית ירודה|Brain Fog / Mental Clarity|hgb,ferritin,gluc,hba1c,tsh,b12,folate,vitd|brainfog;ערפל מוחי|
+11.3.12|neuropsych|מום קיארי|Chiari Malformation|mri|Arnold Chiari;קיארי|
+11.3.13|neuropsych|דמנציה / אלצהיימר|Dementia / Alzheimer's Disease|b12,folate,tsh,vitd,ca,mri|Alzheimer disease;שיטיון|
+11.3.14|neuropsych|הפרעת דה-פרסונליזציה ודה-ריאליזציה|Depersonalization-Derealization Disorder|tsh,gluc,b12,folate,ca|DPDR;depersonalisation;דה פרסונליזציה|
+11.3.15|neuropsych|דיכאון|Depression|tsh,ft4,hgb,ferritin,b12,folate,vitd,gluc|major depression;דיכאון קליני|
+11.3.16|neuropsych|דיסטוניה|Dystonia|mri,ca,mg,b12,tsh|muscle dystonia;דיסטוניה|
+11.3.17|neuropsych|קושי בוויסות רגשי|Emotional Control|tsh,gluc,hgb,b12,vitd|emotional dysregulation;ויסות רגשי|
+11.3.18|neuropsych|אפילפסיה / פרכוסים|Epilepsy / Seizures|na,ca,mg,gluc,mri|seizure disorder;פרכוס|
+11.3.19|neuropsych|מחלת הנטינגטון|Huntington's Disease (HD)|mri,genetic_carrier|HD;Huntingtons;הנטינגטון|
+11.3.20|neuropsych|יתר לחץ תוך-גולגולתי|Intracranial Hypertension|mri,bp_routine|idiopathic intracranial hypertension;IIH;פסאודוטומור צרברי|
+11.3.21|neuropsych|תסמונת מאל דה דבארקמן|Mal de Debarquement Syndrome (MdDS)|mri,hearing|MdDS;mal de débarquement;מחלת ירידה מהספינה|
+11.3.22|neuropsych|זיכרון ירוד / איטיות מחשבתית|Memory Retention / Mental Quickness|b12,folate,tsh,vitd,gluc,mri|memory problems;cognitive slowing;בעיות זיכרון|
+11.3.23|neuropsych|מיגרנה / מיגרנה עם אאורה / כאב ראש מקבצי|Migraines / Aura Migraines / Cluster Headaches / Horton's Syndrome|hgb,tsh,gluc,mg,vitd,mri|migraine with aura;cluster headache;Horton syndrome;מיגרנות|
+11.3.24|neuropsych|הפרעה טורדנית כפייתית|Obsessive Compulsive Disorder (OCD)|tsh,hgb,b12,folate|OCD;obsessive-compulsive disorder;הפרעה כפייתית|
+11.3.25|neuropsych|מחלת פרקינסון|Parkinson's Disease|mri,b12,tsh,ca|Parkinson disease;פרקינסון|
+11.3.26|neuropsych|חוסר שיווי משקל|Poor Balance|b12,folate,tsh,gluc,ca,mri,hearing|balance problems;unstable gait;אי יציבות|
+11.3.27|neuropsych|הפרעת דחק פוסט-טראומטית|Post-Traumatic Stress Disorder (PTSD)|tsh,hgb,gluc,b12,vitd|PTSD;post traumatic stress;פוסט טראומה|
+11.3.28|neuropsych|סכיזופרניה / הפרעה סכיזואפקטיבית / פסיכוזה|Schizophrenia / Schizoaffective Disorder / Psychosis|tsh,gluc,hgb,b12,folate,ca,prolactin|schizoaffective;psychotic disorder;סכיזופרניה;פסיכוזה|
+11.3.29|neuropsych|הפרעה רגשית עונתית|Seasonal Affective Disorder (SAD)|vitd,tsh,hgb,b12|SAD;winter depression;דיכאון עונתי|
+11.3.30|neuropsych|פגיעה עצמית / חיתוך / טריכוטילומניה|Self-Harm / Cutting / Trichotillomania|hgb,ferritin,tsh,b12,folate|self injury;hair pulling;תלישת שיער|
+11.3.31|neuropsych|תסמונת טורט|Tourette Syndrome (TS) / Tourette's|tsh,b12,folate,mri|TS;Tourette disorder;טורט|
+11.3.32|neuropsych|סחרחורת / ורטיגו / מחלת נסיעה|Vertigo / Dizziness / Motion Sickness|hgb,gluc,bp_routine,tsh,b12,hearing,mri|lightheadedness;motion sickness;ורטיגו|
+11.3.33|neuropsych|נגעים בחומר הלבן במוח|White Matter Lesions (WMLs)|mri,bp_routine,gluc,hba1c,tchol,ldl|WML;white matter disease;נגעי חומר לבן|
+11.4.1|cancer|סרטן דם / פוליציטמיה ורה|Blood Cancer / Polycythemia Vera (PV)|hgb,hct,wbc,plt,ldh,uric|PV;polycythaemia vera;פוליציטמיה ורה|
+11.4.2|cancer|סרטן המעי|Bowel Cancer|fit,colono,cea,hgb,ferritin|colorectal cancer;bowel carcinoma;סרטן קולורקטלי|
+11.4.3|cancer|סרטן מוח / גליובלסטומה|Brain Cancer / Glioblastoma (GBM)|mri,pet_ct,hgb,wbc|GBM;glioblastoma multiforme;גידול מוח|
+11.4.4|cancer|סרטן השד|Breast Cancer|mammo,us_breast,hgb,ca125|breast carcinoma;סרטן שד|
+11.4.5|cancer|סרטן המעי הגס|Colon Cancer|fit,colono,cea,hgb,ferritin|colorectal cancer;CRC;סרטן קולון|
+11.4.6|cancer|קרצינומה דוקטלית באתרה|Ductal Carcinoma in Situ (DCIS)|mammo,us_breast|DCIS;סרטן שד לא פולשני|
+11.4.7|cancer|סרטן הוושט|Esophageal Cancer|ct_chest,pet_ct,hgb,cea|oesophageal cancer;סרטן ושט|
+11.4.8|cancer|סרטן מערכת העיכול|Gastrointestinal Cancer|ct_chest,pet_ct,hgb,cea,ca199|GI cancer;סרטן גסטרואינטסטינלי|
+11.4.9|cancer|לוקמיה|Leukemia|hgb,wbc,plt,ldh,uric|leukaemia;סרטן הדם|
+11.4.10|cancer|סרטן ריאות|Lung Cancer|cxr,ct_chest,pet_ct,hgb|lung carcinoma;סרטן הריאה|
+11.4.11|cancer|מיאלומה נפוצה / סרטן עצם|Multiple Myeloma / Bone Cancer|hgb,ca,creat,free_light_chains,ldh,pet_ct|myeloma;MM;מיאלומה|
+11.4.12|cancer|סרטן השחלה|Ovarian Cancer|ca125,us_vaginal,ct_chest,hgb|ovary cancer;סרטן שחלות|
+11.4.13|cancer|סרטן הלבלב|Pancreatic Cancer|ca199,lipase,amylase,ct_chest,us_abd|pancreas cancer;סרטן לבלב|
+11.4.14|cancer|סרטן הערמונית|Prostate Cancer|psa,mri,ct_chest|prostatic cancer;סרטן פרוסטטה|
+11.4.15|cancer|סרקומה|Sarcoma|mri,ct_chest,pet_ct,hgb|soft tissue sarcoma;סרקומה של רקמות רכות|
+11.4.16|cancer|קרצינומה של תאי קשקש / קרצינומה של תאי בסיס|Squamous Cell Carcinoma / Basal Cell Carcinoma|skin_check|SCC;BCC;סרטן עור לא מלנומה|
+11.5.1|pain|תסמונת כאב אזורי מורכב|Complex Regional Pain Syndrome (CRPS)|crp,esr,mri,msk_us|CRPS;reflex sympathetic dystrophy;RSD|
+11.5.2|pain|פיברומיאלגיה / פיברוזיטיס|Fibromyalgia / Fibrositis|crp,esr,tsh,vitd,ck,hgb|fibromyalgia syndrome;פיברומיאלגיה|
+11.5.3|pain|פולימיאלגיה ראומטיקה|Polymyalgia Rheumatica (PMR)|crp,esr,hgb|PMR;פולימיאלגיה|
+11.6.1|dental|אפטות / פצעי קור / הרפס בשפתיים|Canker Sores / Cold Sores / Fever Blisters / Oral Herpes / Herpes Labialis|hgb,ferritin,b12,folate|aphthous ulcers;cold sore;herpes labialis;אפטה|
+11.6.2|dental|עששת|Cavities||dental caries;tooth decay;חורים בשיניים|
+11.6.3|dental|דלקת חניכיים / מחלת חניכיים / דימום ונסיגת חניכיים|Gingivitis / Gum Disease / Bleeding Gums / Receding Gums / Periodontal Disease|hba1c,gluc,crp|periodontitis;gum bleeding;פריודונטיטיס|
+11.6.4|dental|רגישות בשיניים|Sensitive Teeth||tooth sensitivity;שיניים רגישות|
+11.6.5|dental|הפרעה במפרק הלסת|Temporomandibular Joint Dysfunction (TMJ)|msk_us,mri|TMJ disorder;TMD;מפרק לסת|
+11.6.6|dental|כיבים בלשון / כיבים בפה|Tongue Ulcers / Mouth Ulcers|hgb,ferritin,b12,folate,zinc|oral ulcers;aphthae;כיבים אורליים|
+11.6.7|dental|אבני שקדים|Tonsil Stones / Tonsillolith|wbc,crp|tonsilloliths;אבנים בשקדים|
+11.7.1|digestive|רפלוקס חומצי / צרבת|Acid Reflux / Heartburn|hpylori,hgb|acid reflux;heartburn;צרבת|
+11.7.2|digestive|פיסורה אנאלית|Anal Fissure|hgb,ferritin|anal tear;סדק בפי הטבעת|
+11.7.3|digestive|נפיחות בטנית|Bloating|ttg_iga,hpylori,hgb,crp,us_abd|abdominal bloating;גזים ונפיחות|
+11.7.4|digestive|זיהום קלוסטרידיום דיפיצילה / קוליטיס C. difficile|C. difficile Colitis|wbc,crp,esr,alb|Clostridioides difficile;C diff;קלוסטרידיום|
+11.7.5|digestive|תסמונת הקאות מחזוריות|Cyclical Vomiting Syndrome (CVS)|gluc,na,k,mg,alt,ast,amylase,lipase|cyclic vomiting syndrome;CVS;הקאות מחזוריות|
+11.7.6|digestive|דיברטיקוליטיס|Diverticulitis|wbc,crp,esr,ct_chest,colono|diverticular disease;דלקת סעיפים|
+11.7.7|digestive|גזים / נפיחות וגזים מוגברים|Gas / Excessive Flatulence|ttg_iga,hpylori|flatulence;גזים במערכת העיכול|
+11.7.8|digestive|גסטריטיס / דלקת הקיבה|Gastritis / Stomach Inflammation|hpylori,hgb,ferritin,b12|stomach inflammation;דלקת קיבה|
+11.7.9|digestive|מחלת רפלוקס קיבתי-ושטי / דלקת הוושט|Gastroesophageal Reflux Disease (GERD) / Esophagitis|hpylori,hgb|GORD;GERD;רפלוקס|
+11.7.10|digestive|גסטרופרזיס|Gastroparesis|gluc,hba1c,tsh,na,k|delayed gastric emptying;שיתוק קיבה|
+11.7.11|digestive|טחורים|Hemorrhoids|hgb,ferritin|haemorrhoids;piles;טחורים|
+11.7.12|digestive|מחלת מעי דלקתית|Inflammatory Bowel Disease (IBD)|hgb,wbc,crp,esr,ferritin,iron,b12,folate,alb,colono|IBD;מחלת מעי דלקתית|
+11.7.12.1|digestive|מחלת קרוהן|Crohn's Disease|hgb,wbc,crp,esr,ferritin,iron,b12,folate,alb,colono|Crohns;קרוהן|
+11.7.12.2|digestive|קוליטיס כיבית|Ulcerative Colitis (UC)|hgb,wbc,crp,esr,ferritin,iron,alb,colono|UC;ulcerative colitis;קוליטיס|
+11.7.12.3|digestive|קוליטיס מיקרוסקופית / לימפוציטית|Microscopic Colitis / Lymphocytic Colitis|hgb,wbc,crp,esr,colono|collagenous colitis;קוליטיס מיקרוסקופית|
+11.7.13|digestive|תסמונת המעי הרגיז / שלשול / עצירות|Irritable Bowel Syndrome (IBS) / Diarrhea / Constipation|hgb,crp,tsh,ttg_iga|IBS;irritable bowel;מעי רגיז;שלשולים;עצירות|
+11.7.14|digestive|חדירות יתר של המעי / מעי דליף|Leaky Gut|hgb,crp,alb|intestinal permeability;מעי דולף|
+11.7.15|digestive|תת-ספיגה במעי / תת-ספיגה לאחר ניתוח|Malabsorption / Intestinal Malabsorption / Post-Surgical Malabsorption|hgb,ferritin,iron,b12,folate,vitd,ca,mg,alb,tp|malabsorption syndrome;תת ספיגה|
+11.7.16|digestive|דלקת הלבלב|Pancreatitis|lipase,amylase,alt,ast,tg,ca,us_abd|acute pancreatitis;chronic pancreatitis;פנקראטיטיס|
+11.7.17|digestive|צמיחת יתר חיידקית או פטרייתית במעי הדק / חומציות קיבה נמוכה|SIBO / SIFO / Low Stomach Acid|hgb,ferritin,b12,folate,alb|small intestinal bacterial overgrowth;small intestinal fungal overgrowth;היפוכלורידריה|
+11.8.1|ent|דלקות אוזניים כרוניות|Chronic Ear Infections|wbc,crp,hearing|otitis;otitis media;דלקת אוזן|
+11.8.2|ent|סינוסיטיס כרונית / זיהום כרוני בסינוסים|Chronic Sinus Infection / Sinusitis|wbc,crp,esr|chronic sinusitis;דלקת סינוסים|
+11.8.3|ent|הפרעת חוש ריח / אנוסמיה / פנטוסמיה / פרוסמיה|Distorted Smell / Anosmia / Phantosmia / Parosmia|mri|smell loss;loss of smell;אובדן ריח|
+11.8.4|ent|חסימת שעווה באוזן / עודף שעוות אוזניים|Earwax Blockage / Excessive Earwax|hearing|cerumen impaction;פקק שעווה|
+11.8.5|ent|ירידה בשמיעה / חירשות / אוטוסקלרוזיס|Hearing Loss / Deafness / Otosclerosis|hearing,mri|hearing impairment;deafness;אובדן שמיעה|
+11.8.6|ent|היפראקוזיס / רגישות יתר לרעש|Hyperacusis|hearing|sound sensitivity;רגישות לרעש|
+11.8.7|ent|לברינתיטיס / דלקת העצב הווסטיבולרי|Labyrinthitis / Vestibular Neuritis|hearing,mri,wbc,crp|vestibular neuritis;דלקת מבוך האוזן|
+11.8.8|ent|נחירות / דום נשימה בשינה|Snoring / Sleep Apnea|hgb,hct,bp_routine,gluc,hba1c|obstructive sleep apnea;OSA;דום נשימה חסימתי|
+11.8.9|ent|כאב גרון / סטרפטוקוק כרוני / בלוטות נפוחות|Throat Pain / Chronic Strep Throat / Swollen Glands|wbc,crp,esr|strep throat;sore throat;כאב גרון|
+11.8.10|ent|טינטון / צפצופים באוזניים|Tinnitus|hearing,bp_routine,b12,tsh,mri|ringing in ears;צפצוף באוזן|
+11.9.1|eating|אנורקסיה נרבוזה|Anorexia|hgb,gluc,na,k,mg,ca,phos,alb,tp,tsh,ecg|anorexia nervosa;הפרעת אכילה אנורקסיה|
+11.9.2|eating|בולימיה / אכילה כפייתית / בולמוסים והקאות|Bulimia / Binge Eating / Binging and Purging|hgb,gluc,na,k,mg,ca,phos,alb,ecg|bulimia nervosa;binge eating disorder;BED;בולמוסי אכילה|
+11.9.3|eating|תסמונת אכילת לילה|Night Eating Syndrome (NES)|gluc,hba1c,cortisol,tsh|NES;אכילה לילית|
+11.9.4|eating|אורתורקסיה|Orthorexia|hgb,ferritin,b12,folate,vitd,alb,tp|orthorexia nervosa;אובססיה לאכילה בריאה|
+11.10.1|energy|תסמונת העייפות הכרונית / אנצפלומיאליטיס מיאלגית|Chronic Fatigue Syndrome (CFS) / Myalgic Encephalomyelitis (ME)|hgb,ferritin,iron,b12,folate,tsh,vitd,gluc,crp,esr|CFS;ME;ME/CFS;תשישות כרונית|
+11.10.2|energy|אנרגיה נמוכה / עייפות / ישנוניות|Low Energy / Fatigue / Drowsiness|hgb,ferritin,iron,b12,folate,tsh,vitd,gluc|fatigue;drowsiness;תשישות|
+11.11.1|eye|עיוורון|Blindness|eye_glaucoma,gluc,hba1c,bp_routine|vision loss;אובדן ראייה|
+11.11.2|eye|קטרקט / ירוד|Cataracts|eye_glaucoma,gluc,hba1c|cataract;ירוד בעין|
+11.11.3|eye|רטינופתיה סוכרתית|Diabetic Retinopathy|eye_glaucoma,gluc,hba1c,bp_routine,urine_acr|diabetic eye disease;פגיעה סוכרתית ברשתית|
+11.11.4|eye|יובש בעיניים / תסמונת העין היבשה|Dry Eyes / Dry Eye Syndrome|eye_glaucoma,ana,tsh,gluc|dry eye;עיניים יבשות|
+11.11.5|eye|הפרשות עיניים / ריר בעיניים|Eye Discharge / Eye Mucus|wbc,crp|ocular discharge;הפרשה מהעין|
+11.11.6|eye|שיתוק שרירי העין / אופתלמופלגיה|Eye Paralysis / Ophthalmoplegia|mri,gluc,hba1c,tsh,b12|ophthalmoplegia;שיתוק עין|
+11.11.7|eye|עכירויות צפות / זבובים בעיניים|Floaters|eye_glaucoma,gluc,hba1c|eye floaters;זבובים בראייה|
+11.11.8|eye|גלאוקומה|Glaucoma|eye_glaucoma,bp_routine,gluc,hba1c|לחץ תוך עיני|
+11.11.9|eye|רגישות לאור / פוטופוביה|Light Sensitivity|eye_glaucoma,mri|photophobia;רגישות לאור|
+11.11.10|eye|ניוון מקולרי|Macular Degeneration (AMD)|eye_glaucoma,gluc,hba1c,tchol,ldl|AMD;age-related macular degeneration;ניוון רשתית|
+11.11.11|eye|מייבומיאניטיס / בלפריטיס / שעורה / כלזיון / דלקת עפעפיים|Meibomianitis / Blepharitis / Stye / Chalazion / Eyelid Inflammation|gluc,hba1c|hordeolum;eyelid inflammation;שעורה בעין|
+11.11.12|eye|קוצר ראייה / רוחק ראייה / אסטיגמציה|Myopia / Hyperopia / Astigmatism|eye_glaucoma|nearsightedness;farsightedness;צילינדר|
+11.11.13|eye|רטינופתיה פיגמנטרית / רטיניטיס פיגמנטוזה|Pigmentary Retinopathy / Retinitis Pigmentosa|eye_glaucoma,genetic_carrier|retinitis pigmentosa;RP;ניוון רשתית תורשתי|
+11.11.14|eye|דלקת לחמית / עין ורודה|Pink Eye / Conjunctivitis|wbc,crp|conjunctivitis;עין אדומה|
+11.11.15|eye|אובאיטיס|Uveitis|ana,crp,esr,hla_b27|uveitis;דלקת הענביה|
+11.12.1|foot|פטרת כף הרגל / פטרת ציפורניים|Athlete's Foot / Toe Fungus / Onychomycosis|gluc,hba1c|tinea pedis;onychomycosis;פטרת|
+11.12.2|foot|דורבן / דלקת החיתולית הכפית|Plantar Fasciitis|msk_us,mri,vitd|heel pain;דורבן בעקב|
+11.13.1|hair|ציפורניים שבירות / מתפצלות|Brittle Nails / Split Nails / Onychoschizia|hgb,ferritin,iron,tsh,b12,folate,zinc|brittle nails;onychoshizia;ציפורניים חלשות|
+11.13.2|hair|נשירת שיער / התקרחות / דלילות / אלופציה|Hair Loss / Balding / Thinning / Alopecia|hgb,ferritin,iron,tsh,vitd,zinc,testo,dhea_s|alopecia;hair thinning;נשירת שיער|
+11.13.3|hair|שקעים בציפורניים|Nail Pitting|crp,esr,tsh,ferritin|pitted nails;חורים בציפורניים|
+11.14.1|cardio|אנמיה / חוסר ברזל / פריטין נמוך|Anemia / Iron Deficiency / Low Ferritin|hgb,hct,mcv,rdw,ferritin,iron,tibc,transferrin,tsat,b12,folate|iron deficiency anemia;anaemia;אנמיה מחוסר ברזל|
+11.14.2|cardio|אנגינה פקטוריס / תעוקת חזה|Angina|ecg,stress,troponin,cac,ct_angio|angina pectoris;תעוקת חזה|
+11.14.3|cardio|הפרעת קצב / פרפור פרוזדורים / דופק לא סדיר|Arrhythmia / Atrial Fibrillation (AF, AFib) / Irregular Heartbeat|ecg,holter_ecg,k,mg,tsh,echo|AFib;AF;atrial fibrillation;פרפור עליות|
+11.14.4|cardio|טרשת עורקים / אתרוסקלרוזיס|Arteriosclerosis / Atherosclerosis|tchol,ldl,hdl,tg,apob,lpa,bp_routine,cac,ct_angio,carotid_us,abi|atheroma;טרשת עורקים|
+11.14.5|cardio|אי-ספיקת לב / קרדיומיופתיה|Congestive Heart Failure (CHF) / Cardiomyopathy|bnp,echo,ecg,creat,na,k|CHF;heart failure;קרדיומיופתיה|
+11.14.6|cardio|דפיקות לב|Heart Palpitations|ecg,holter_ecg,tsh,hgb,k,mg|palpitations;הלמות לב|
+11.14.7|cardio|דופק מהיר / טכיקרדיה|High Heart Rate / Tachycardia|ecg,holter_ecg,tsh,hgb,gluc,k,mg|tachycardia;דופק מואץ|
+11.14.8|cardio|מיוקרדיטיס / פריקרדיטיס|Myocarditis / Pericarditis|troponin,crp,esr,ecg,echo|heart inflammation;דלקת שריר הלב;דלקת קרום הלב|
+11.14.9|cardio|זרימת דם ירודה|Poor Circulation|bp_routine,abi,carotid_us,gluc,hba1c,tchol,ldl|peripheral circulation;זרימת דם חלשה|
+11.14.10|cardio|תסמונת ריינו|Raynaud's Syndrome|ana,crp,esr,thyroid_us,tsh|Raynaud phenomenon;ריינו|
+11.14.11|cardio|דליות|Varicose Veins|ddimer,abi|varicose veins;ורידים בולטים|
+11.14.12|cardio|וסקוליטיס / אנגאיטיס|Vasculitis / Angiitis|anca,ana,crp,esr,creat,urinalysis|blood vessel inflammation;דלקת כלי דם|
+11.15.1|reproductive|תפקוד יותרת הכליה / מחלת אדיסון / תת-קורטיזוליזם|Adrenal Function / Addison's Disease / Hypocortisolism|cortisol,acth,na,k,gluc,renin,aldosterone|adrenal insufficiency;Addison disease;אי ספיקת יותרת הכליה|
+11.15.2|reproductive|אי-פוריות|Infertility|tsh,fsh,lh,estradiol,progesterone,testo,prolactin,shbg|fertility problems;עקרות|
+11.15.3|reproductive|הפרעה ברצפת האגן / צניחת איברי האגן|Pelvic Floor Dysfunction / Pelvic Organ Prolapse|us_vaginal,urinalysis|PFD;pelvic prolapse;צניחת רצפת אגן|
+11.15.4|reproductive|חשק מיני / ליבידו|Sex Drive / Libido|testo,shbg,prolactin,tsh,estradiol|low libido;sexual desire;ירידה בחשק המיני|
+11.15.5|reproductive|זיהום שמרים / קנדידה / קנדידיאזיס|Yeast Infection / Candida / Candidiasis|gluc,hba1c,urinalysis|thrush;candida infection;פטרת קנדידה|
+11.15.6.1|reproductive|אל-וסת|Amenorrhea|tsh,fsh,lh,estradiol,prolactin,testo|absence of periods;אין מחזור|
+11.15.6.2|reproductive|אנדומטריוזיס / אדנומיוזיס|Endometriosis / Adenomyosis|us_vaginal,mri,hgb,ferritin,ca125|endometriosis;adenomyosis;אנדומטריוזיס|
+11.15.6.3|reproductive|שרירנים ברחם / מיומה|Fibroids / Uterine Myoma|us_vaginal,hgb,ferritin|uterine fibroids;leiomyoma;מיומה ברחם|
+11.15.6.4|reproductive|מחזור כבד / כואב / לא סדיר|Heavy / Painful / Irregular Periods|hgb,ferritin,tsh,fsh,lh,estradiol,progesterone,us_vaginal|menorrhagia;dysmenorrhea;מחזור לא סדיר|
+11.15.6.5|reproductive|שיעור יתר|Hirsutism / Excessive Hair Growth|testo,shbg,free_androgen_index,dhea_s,tsh,prolactin|hirsutism;שיער יתר|
+11.15.6.6|reproductive|גיל המעבר / לאחר גיל המעבר|Menopause / Postmenopause|tsh,fsh,estradiol,vitd,dexa_bone,tchol,ldl,hdl,tg|perimenopause;postmenopause;מנופאוזה|
+11.15.6.7|reproductive|ציסטות בשחלות|Ovarian Cysts|us_vaginal,ca125|ovarian cyst;ציסטה בשחלה|
+11.15.6.8|reproductive|תסמונת השחלות הפוליציסטיות|Polycystic Ovary Syndrome (PCOS)|gluc,hba1c,insulin,tg,hdl,testo,shbg,dhea_s,lh,fsh,us_vaginal|PCOS;polycystic ovaries;שחלות פוליציסטיות|
+11.15.6.9|reproductive|הפרעה דיספורית קדם-וסתית / תסמונת קדם-וסתית|Premenstrual Dysphoric Disorder (PMDD) / Premenstrual Syndrome (PMS)|tsh,hgb,ferritin,vitd,mg|PMDD;PMS;תסמונת קדם וסתית|
+11.15.6.10|reproductive|צניחת שדיים|Saggy Breasts||breast ptosis;צניחת חזה|
+11.15.6.11|reproductive|זיהומים בדרכי השתן / זיהום כרוני בדרכי השתן|Urinary Tract Infections (UTI) / Chronic UTI|urinalysis,urine_culture,gluc,hba1c|UTI;urinary infection;דלקת בדרכי השתן|
+11.15.7.1|reproductive|הפרעת זקפה|Erectile Dysfunction (ED)|testo,shbg,prolactin,gluc,hba1c,tchol,ldl,bp_routine|ED;impotence;אין אונות|
+11.15.7.2|reproductive|טסטוסטרון נמוך|Low Testosterone|testo,shbg,free_androgen_index,lh,fsh,prolactin,tsh|hypogonadism;low T;היפוגונדיזם|
+11.15.7.3|reproductive|בעיות ערמונית / הגדלה שפירה / דלקת הערמונית|Prostate / Benign Prostatic Hyperplasia (BPH) / Prostatitis|psa,urinalysis,urine_culture|BPH;enlarged prostate;prostatitis;פרוסטטה|
+11.16.1|inflammation|בורסיטיס / דלקת אמתחת|Bursitis|crp,esr,msk_us,mri|bursa inflammation;דלקת בורסה|
+11.16.2|inflammation|תסמונת תגובה דלקתית כרונית|Chronic Inflammatory Response Syndrome (CIRS)|wbc,crp,esr,ana|CIRS;תסמונת דלקתית כרונית|
+11.16.3|inflammation|קוסטוכונדריטיס / דלקת סחוסי הצלעות|Costochondritis|crp,esr,ecg,cxr|chest wall inflammation;דלקת צלעות|
+11.16.4|inflammation|טנוסינוביטיס על שם דה קרוון|De Quervain's Tenosynovitis|msk_us,mri|De Quervain disease;דלקת גידי אגודל|
+11.16.5|inflammation|דלקת גידים|Tendonitis|msk_us,mri,crp|tendinitis;טנדיניטיס|
+11.16.6|inflammation|מיאליטיס רוחבית|Transverse Myelitis|mri,b12,ana,crp,esr|transverse myelitis;דלקת חוט השדרה|
+11.17.1|renal|זיהומים כרוניים בכליות|Chronic Kidney Infections|urinalysis,urine_culture,creat,egfr,wbc,crp,us_abd|pyelonephritis;דלקת כליות|
+11.17.2|renal|כליה מוגדלת / הידרונפרוזיס|Enlarged Kidney / Hydronephrosis|creat,egfr,urinalysis,us_abd|hydronephrosis;הרחבת אגן כליה|
+11.17.3|renal|גלומרולוסקלרוזיס מוקדי ומקטעי|Focal Segmental Glomerulosclerosis (FSGS)|creat,egfr,urine_acr,urinalysis,alb|FSGS;glomerulosclerosis;מחלת פקעיות כליה|
+11.17.4|renal|אבני מרה|Gallstones|us_abd,alp,ggt,tbil,dbil|cholelithiasis;אבנים בכיס המרה|
+11.17.5|renal|ציסטיטיס אינטרסטיציאלית / תסמונת שלפוחית כואבת|Interstitial Cystitis / Painful Bladder Syndrome|urinalysis,urine_culture,us_abd|IC;bladder pain syndrome;שלפוחית רגיזה כואבת|
+11.17.6|renal|מחלת כליה / אי-ספיקת כליות|Kidney Disease / Kidney Failure / Renal Failure|creat,urea,egfr,k,na,urinalysis,urine_acr,us_abd|CKD;renal failure;chronic kidney disease;כשל כלייתי|
+11.17.7|renal|אבנים בכליות / נפרוליתיאזיס|Kidney Stones / Nephrolithiasis|urinalysis,urine_oxalate,uric,ca,creat,us_abd|renal calculi;nephrolithiasis;אבני כליה|
+11.17.8|renal|נפרופתיה ממברנוזית|Membranous Nephropathy (MN)|creat,egfr,urine_acr,urinalysis,alb|membranous glomerulopathy;MN;נפרופתיה|
+11.17.9|renal|בריחת שתן|Urinary Incontinence|urinalysis,urine_culture,gluc,hba1c,us_abd|incontinence;דליפת שתן|
+11.18.1|liver|קשריות בכבד|Liver Nodules|alt,ast,ggt,alp,tbil,afp,us_abd,ct_chest,mri|liver lesions;hepatic nodules;נגעים בכבד|
+11.18.2|liver|כבד שומני לא אלכוהולי / סטאטוזיס כבדי|Nonalcoholic Fatty Liver Disease (NAFLD) / Hepatic Steatosis|alt,ast,ggt,tg,gluc,hba1c,insulin,us_abd|NAFLD;MASLD;fatty liver;כבד שומני|
+11.19.1|lymphatic|בצקת / אגירת נוזלים|Edema / Fluid Retention|alb,creat,urea,egfr,tsh,bnp,echo|oedema;fluid retention;נפיחות|
+11.19.2|lymphatic|ליפאדמה / לימפאדמה|Lipedema / Lymphedema|alb,creat,tsh,us_abd|lipoedema;lymphoedema;בצקת לימפתית|
+11.20.1|metabolic|תת-פעילות מולדת של בלוטת התריס|Congenital Hypothyroidism (CH)|tsh,ft4,ft3|CH;congenital thyroid deficiency;היפותירואידיזם מולד|
+11.20.2|metabolic|סוכרת|Diabetes|gluc,hba1c,insulin,urine_acr,creat,egfr,tchol,ldl,hdl,tg|diabetes mellitus;סכרת|
+11.20.2.1|metabolic|טרום-סוכרת|Prediabetes|gluc,hba1c,insulin,tg,hdl,bp_routine|pre-diabetes;טרום סוכרת|
+11.20.2.2|metabolic|סוכרת סוג 1|Type 1 Diabetes|gluc,hba1c,urine_acr,creat,egfr,tsh|T1D;T1DM;סוכרת נעורים|
+11.20.2.3|metabolic|סוכרת סוג 2|Type 2 Diabetes|gluc,hba1c,insulin,urine_acr,creat,egfr,tg,hdl,ldl,apob,bp_routine|T2D;T2DM;סוכרת מבוגרים|
+11.20.2.4|metabolic|סוכרת הריון|Gestational Diabetes|ogtt,gluc,hba1c,urinalysis|GDM;סוכרת הריונית|
+11.20.3|metabolic|מחלת גרייבס / יתר-פעילות בלוטת התריס|Graves' Disease / Hyperthyroidism|tsh,ft4,ft3,tpo,thyroid_us|Graves disease;thyrotoxicosis;גרייבס|
+11.20.4|metabolic|דלקת בלוטת התריס על שם השימוטו / תת-פעילות|Hashimoto's Thyroiditis / Hypothyroidism|tsh,ft4,ft3,tpo,thyroid_us|Hashimoto disease;underactive thyroid;השימוטו|
+11.20.5|metabolic|יתר לחץ דם|High Blood Pressure / Hypertension|bp_routine,holter_bp,creat,egfr,k,na,gluc,hba1c,tchol,ldl|hypertension;לחץ דם גבוה|
+11.20.6|metabolic|היפרגליקמיה / סוכר גבוה|Hyperglycemia / High Blood Sugar|gluc,hba1c,insulin,urinalysis|high glucose;סוכר גבוה|
+11.20.7|metabolic|היפוגליקמיה / סוכר נמוך|Hypoglycemia / Low Blood Sugar|gluc,insulin,cortisol,acth|low glucose;נפילת סוכר|
+11.20.8|metabolic|תנגודת לאינסולין|Insulin Resistance (IR)|gluc,hba1c,insulin,tg,hdl,bp_routine|IR;hyperinsulinemia;עמידות לאינסולין|
+11.20.9|metabolic|לחץ דם נמוך|Low Blood Pressure / Hypotension|bp_routine,holter_bp,hgb,na,k,cortisol|hypotension;לחץ דם נמוך|
+11.21.1|nerve|דיסאוטונומיה / תסמונת טכיקרדיה תנוחתית|Dysautonomia / Postural Orthostatic Tachycardia Syndrome (POTS)|bp_routine,holter_bp,holter_ecg,ecg,hgb,ferritin,b12,tsh,na,k|POTS;postural tachycardia;דיסאוטונומיה|
+11.21.2|nerve|מחלת הנוירון המוטורי|Motor Neurone Disease (MND)|mri,ck,b12,tsh|MND;motor neuron disease;ALS|
+11.21.3|nerve|טרשת נפוצה|Multiple Sclerosis (MS)|mri,b12,folate,ana,vitd|MS;multiple sclerosis;טרשת נפוצה|
+11.21.4|nerve|אטרופיה רב-מערכתית|Multiple System Atrophy (MSA)|mri,bp_routine|MSA;multiple system atrophy;ניוון רב מערכתי|
+11.21.5|nerve|כאב עצבי / נזק עצבי / נוירופתיה היקפית|Nerve Pain / Nerve Damage / Neuropathy / Peripheral Neuropathy|gluc,hba1c,b12,folate,tsh,ca,mg,mri|neuropathic pain;peripheral neuropathy;נימול|
+11.21.6|nerve|תסמונת הרגליים חסרות המנוחה|Restless Legs Syndrome (RLS) / Willis-Ekbom Disease|ferritin,iron,tibc,transferrin,hgb,b12,tsh|RLS;Willis Ekbom;רגליים חסרות מנוחה|
+11.21.7|nerve|סיאטיקה / דלקת העצב הסיאטי|Sciatica / Sciatic Neuritis|mri,msk_us|sciatic pain;אישיאס;כאב סיאטי|
+11.22.1|respiratory|אסתמה|Asthma|eos,total_ige,cxr|asthma;קצרת|
+11.22.2|respiratory|אמפיזמה / מחלת ריאות חסימתית כרונית|Emphysema / Chronic Obstructive Pulmonary Disease (COPD)|cxr,ct_chest,hgb,hct,wbc,crp|COPD;chronic bronchitis;נפחת|
+11.23.1|skin|אקנתוזיס ניגריקנס / היפרפיגמנטציה|Acanthosis Nigricans / Hyperpigmentation|gluc,hba1c,insulin|AN;dark skin patches;כתמי עור כהים|
+11.23.2|skin|אקנה / אקנה ציסטית|Acne / Cystic Acne|gluc,hba1c,testo,shbg,dhea_s|cystic acne;פצעי בגרות|
+11.23.3|skin|שחין / אבצסים|Boils|wbc,crp,gluc,hba1c|furuncle;abscess;מורסה|
+11.23.4|skin|צלוליט|Cellulite||| 
+11.23.5|skin|צלוליטיס / זיהום חיידקי בעור|Cellulitis / Bacterial Skin Infection|wbc,crp,gluc,hba1c|skin infection;שושנה|
+11.23.6|skin|עור ברווז / קרטוזיס פילאריס|Chicken Skin / Keratosis Pilaris|vitd|keratosis pilaris;KP;עור מחוספס|
+11.23.7|skin|קרקפת יבשה / קשקשים|Dry Scalp / Dandruff|tsh,zinc,ferritin|dandruff;seborrhea;קשקשת|
+11.23.8|skin|אקזמה / דרמטיטיס|Eczema / Dermatitis|eos,total_ige,crp|atopic dermatitis;אקזמה|
+11.23.9|skin|הידרדניטיס סופורטיבה / אקנה אינברסה|Hidradenitis Suppurativa (HS) / Acne Inversa|wbc,crp,gluc,hba1c|HS;hidradenitis;הידרדניטיס|
+11.23.10|skin|גרד / פרוריטוס|Itching / Pruritus|eos,total_ige,alt,ast,tbil,creat,tsh|pruritus;itchy skin;גרד בעור|
+11.23.11|skin|ליכן סקלרוזוס / ליכן פלנוס|Lichen Sclerosus (LS) / Lichen Planus (LP)|ana,crp,gluc|LS;LP;ילפת|
+11.23.12|skin|כתמי כבד / כתמי גיל|Liver Spots / Age Spots|skin_check|solar lentigines;age spots;כתמי שמש|
+11.23.13|skin|שומות / תגיות עור|Moles / Skin Tags|skin_check,gluc,hba1c|nevi;acrochordons;נקודות חן|
+11.23.14|skin|פיטיריאזיס רוזאה|Pityriasis Rosea|skin_check|pityriasis rosea Gibert;חזזית ורודה|
+11.23.15|skin|פסוריאזיס|Psoriasis|crp,esr,uric,gluc,hba1c,tchol,ldl|psoriasis;ספחת|
+11.23.16|skin|פריחה / חרלת|Rash / Hives|eos,total_ige,ana,crp|urticaria;hives;סרפדת|
+11.23.17|skin|רוזציאה|Rosacea|gluc,hba1c|acne rosacea;רוזציאה|
+11.23.18|skin|גזזת הקרקפת|Scalp Ringworm / Tinea Capitis|gluc,hba1c|tinea capitis;ringworm;פטרת הקרקפת|
+11.23.19|skin|סבוריאה / דרמטיטיס סבוראית|Seborrheic Dermatitis / Seborrheic Eczema|tsh,zinc,vitd|seborrheic dermatitis;סבוריאה|
+11.23.20|skin|קרטוזיס סבוראית / יבלת זקנה|Seborrheic Keratosis / Senile Wart|skin_check|seborrhoeic keratosis;יבלת סבוראית|
+11.23.21|skin|פורפורה סנילית|Senile Purpura|hgb,plt,pt_inr,ptt|actinic purpura;שטפי דם בגיל מבוגר|
+11.23.22|skin|זיהום סטפילוקוקלי|Staph Infection|wbc,crp,gluc,hba1c|staphylococcal infection;סטפילוקוק|
+11.23.23|skin|רגישות לשמש / פוטוסנסיטיביות / אלרגיה לשמש|Sun Sensitivity / Photosensitivity / Sun Allergy|ana,crp,skin_check|photosensitive rash;רגישות לאור שמש|
+11.23.24|skin|גמילה מסטרואידים מקומיים|Topical Steroid Withdrawal (TSW)|crp|TSW;red skin syndrome;גמילה ממשחות סטרואידים|
+11.23.25|skin|ויטיליגו / בהקת|Vitiligo|tsh,tpo,ana,b12,folate|vitiligo;בהקת|
+11.23.26|skin|יבלות|Warts|skin_check,gluc,hba1c|verruca;יבלת ויראלית|
+11.24.1|sleep|נדודי שינה|Insomnia|tsh,ferritin,vitd,mg,gluc|sleep disorder;אינסומניה|
+11.24.2|sleep|נוקטוריה / השתנה לילית|Nocturia|urinalysis,urine_culture,gluc,hba1c,creat,egfr,psa|night urination;השתנה בלילה|
+11.25.1|weight|עודף משקל / ירידה במשקל|Overweight / Weight Loss|gluc,hba1c,insulin,tg,hdl,ldl,tsh,cortisol,dexa_body_comp|obesity;weight gain;השמנה;הרזיה|
+11.25.2|weight|תת-משקל|Underweight|hgb,ferritin,b12,folate,vitd,alb,tp,tsh,gluc,dexa_body_comp|low weight;BMI low;משקל נמוך|
+11.26.1|other|אדנומה / גידול שפיר|Adenoma / Non-Cancerous Tumor|hgb,ct_chest,mri,us_abd|benign tumor;noncancerous tumour;גידול לא ממאיר|
+11.26.2|other|אסתטיקה / אנטי-אייג'ינג / מראה חיצוני|Aesthetics / Anti-Aging / Looking Awesome|hgb,ferritin,tsh,vitd,gluc,hba1c,dexa_body_comp|anti ageing;longevity;אנטי אייגינג|
+11.26.3|other|ריח גוף|Body Odor|gluc,hba1c,tsh,alt,ast|body odour;ריח זיעה|
+11.26.4|other|תסמונת התעלה הקרפלית|Carpal Tunnel Syndrome|gluc,hba1c,tsh,b12,msk_us|carpal tunnel;CTS;מנהרת שורש כף היד|
+11.26.5|other|ציסטה|Cyst|us_abd,mri,us_vaginal,us_breast|cystic lesion;כיס נוזלי|
+11.26.6|other|בקע / הרניה|Hernia|us_abd,mri|inguinal hernia;hiatal hernia;קילה|
+11.26.7|other|ליפומה|Lipoma|msk_us,mri|fatty lump;גוש שומני|
+11.26.8|other|מחלת תאי פיטום / תסמונת שפעול תאי פיטום|Mast Cell Disease / Systemic Mastocytosis / Mast Cell Activation Syndrome (MCAS)|wbc,eos,total_ige,crp|MCAS;mastocytosis;mast cell activation;תאי מאסט|
+11.26.9|other|ריפוי פצעים / התאוששות מפציעה|Wound Healing / Injury Recovery|hgb,gluc,hba1c,alb,tp,zinc,vitd,crp|wound healing;injury recovery;החלמת פצע|
+11.26.9.1|other|פיברוזיס / הצטלקות רקמה|Fibrosis|alt,ast,ggt,ct_chest,mri,us_abd|tissue fibrosis;scarring;לייפת|
+`.trim();
+
+function normalizeMedicalSearch(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f\u0591-\u05C7]/g, "")
+    .replace(/[’'`״“”\"?.,:;()\[\]{}\-_–—/\\]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildConditionTerms(he, en, aliases) {
+  const splitTerms = (value) => String(value || "")
+    .split(/\s*\/\s*|\s*;\s*|\s*,\s*|\s+\(.*?\)\s*/)
+    .map(s => s.trim())
+    .filter(Boolean);
+  return Array.from(new Set([
+    he,
+    en,
+    ...splitTerms(he),
+    ...splitTerms(en),
+    ...splitTerms(aliases),
+  ].map(normalizeMedicalSearch).filter(Boolean)));
+}
+
+const WHY_CARNIVORE_CONDITIONS = WHY_CARNIVORE_CONDITION_ROWS
+  .split("\n")
+  .map((row, index) => {
+    const [section, group, he, en, testCsv = "", aliases = "", note = ""] = row.split("|").map(part => part.trim());
+    const explicitTests = testCsv ? testCsv.split(",").map(id => id.trim()).filter(Boolean) : null;
+    const testIds = (explicitTests || WHY_CARNIVORE_GROUP_DEFAULT_TESTS[group] || [])
+      .filter((id, pos, arr) => TEST_MAP[id] && arr.indexOf(id) === pos);
+    return {
+      id: `wc_${section.replace(/[^0-9a-z]+/gi, "_")}_${index}`,
+      section,
+      group,
+      groupLabel: WHY_CARNIVORE_GROUP_LABELS[group] || "מצב רפואי",
+      he,
+      en,
+      aliases: aliases ? aliases.split(";").map(s => s.trim()).filter(Boolean) : [],
+      terms: buildConditionTerms(he, en, aliases),
+      testIds,
+      testRoles: Object.fromEntries(testIds.map(testId => [testId, inferConditionTestRole(section, testId)])),
+      note: note || WHY_CARNIVORE_GROUP_NOTES[group] || "הבדיקות המוצגות עשויות להשתלב בבירור ראשוני, בשלילת גורמים אחרים או במעקב. הן אינן מאבחנות את המצב לבדן.",
+    };
+  });
+
+function conditionDirectlyMatches(condition, query) {
+  const q = normalizeMedicalSearch(query);
+  if (!q) return false;
+  return condition.terms.some(term =>
+    term === q
+    || (q.length >= 3 && term.includes(q))
+    || (term.length >= 4 && q.includes(term))
+  );
+}
+
+function directConditionMatches(query) {
+  const q = normalizeMedicalSearch(query);
+  if (!q) return [];
+  return WHY_CARNIVORE_CONDITIONS.filter(condition => conditionDirectlyMatches(condition, q));
+}
+
+function directlyQueriedTestIds(query) {
+  const q = normalizeMedicalSearch(query);
+  if (!q) return [];
+  const synonymId = lookupLabSynonym(query);
+  const ids = new Set(synonymId && TEST_MAP[synonymId] ? [synonymId] : []);
+  ALL_TESTS.forEach(test => {
+    const names = [test.name, test.en].filter(Boolean).map(normalizeMedicalSearch);
+    if (names.some(name => name === q || (q.length >= 3 && name.includes(q)) || (name.length >= 4 && q.includes(name)))) ids.add(test.id);
+  });
+  return [...ids];
+}
+
+function getConditionSearchMatches(query) {
+  const q = String(query || "").trim();
+  if (!q) return [];
+  const effectiveQ = translateQuery(q) || q;
+  const direct = directConditionMatches(effectiveQ).map(condition => ({ condition, matchType: "condition", matchedTestId: null }));
+  const testIds = directlyQueriedTestIds(effectiveQ);
+  const reverse = testIds.flatMap(testId => WHY_CARNIVORE_CONDITIONS
+    .filter(condition => condition.testIds.includes(testId))
+    .map(condition => ({ condition, matchType: "test", matchedTestId: testId }))
+  );
+  const seen = new Set();
+  return [...direct, ...reverse].filter(match => {
+    if (seen.has(match.condition.id)) return false;
+    seen.add(match.condition.id);
+    return true;
+  });
+}
+
 // ---- Autocomplete / typeahead suggestion pool ------------------------------
 // Built from known concept terms (routes, ambiguous terms), ALL search tags
 // across every test (this is where condition names like "סכיזופרניה" or
@@ -3075,6 +3548,7 @@ const SEARCH_SUGGESTION_CONCEPTS = Array.from(new Set([
   ...Object.keys(SYMPTOM_ROUTES),
   ...Object.keys(AMBIGUOUS_TERMS),
   ...ALL_TESTS.flatMap(t => t.tags || []),
+  ...WHY_CARNIVORE_CONDITIONS.flatMap(condition => [condition.he, condition.en, ...(condition.aliases || [])]),
 ]));
 const SEARCH_SUGGESTION_TESTNAMES = Array.from(new Set(
   ALL_TESTS.flatMap(t => [t.name, t.en]).filter(Boolean)
@@ -3108,6 +3582,9 @@ const RULES = [
   { id:"iron_def_anemia", name:"תבנית אפשרית: אנמיה מחוסר ברזל",
     need:[["hgb","low"],["mcv","low"],["ferritin","low"]], minMatch:2,
     msg:"שילוב של המוגלובין נמוך, תאי דם קטנים (MCV נמוך) ופריטין נמוך מתאים לתבנית של אנמיה על רקע חוסר ברזל. מומלץ לברר את הגורם לחוסר (למשל תזונה או איבוד דם) עם רופא/ה." },
+  { id:"iron_overload_pattern", name:"תבנית אפשרית: עומס ברזל",
+    need:[["ferritin","high"],["tsat","high"]], minMatch:2,
+    msg:"פריטין גבוה יחד עם רוויית טרנספרין גבוהה יכולים להתאים לתבנית של עומס ברזל, לרבות המוכרומטוזיס תורשתי. זה אינו אבחון: פריטין עלול לעלות גם בדלקת, מחלת כבד ומצבים מטבוליים. מומלץ לחזור על הבדיקות בתנאים מתאימים ולדון עם רופא/ה בצורך בבדיקת HFE או בירור נוסף." },
   { id:"b12_anemia", name:"תבנית אפשרית: אנמיה מגלובלית (חוסר B12/פולאט)",
     need:[["hgb","low"],["mcv","high"]], minMatch:2, extraAny:[["b12","low"],["folate","low"]],
     msg:"המוגלובין נמוך עם תאי דם גדולים (MCV גבוה), במיוחד לצד B12 או פולאט נמוכים, מתאים לתבנית של אנמיה מגלובלית. מומלץ לברר עם רופא/ה." },
@@ -3187,6 +3664,11 @@ const PANELS = [
     testIds:["bp_routine","hgb","wbc","plt","gluc","hba1c","tchol","ldl","hdl","tg","apob","lpa","creat","egfr","alt","ast","tsh","urinalysis","fit","eye_glaucoma","skin_check"],
     optionalLabel:"לפי סיכון אישי, תסמינים והחלטה משותפת עם רופא/ה",
     optionalTestIds:["psa","colono","urine_acr","ecg","cac","dexa_bone","hearing"] },
+  { id:"hemochromatosis", title:"חשד לעומס ברזל / המוכרומטוזיס", matchTags:["המוכרומטוזיס","המוכרומטוזיס תורשתי","hemochromatosis","haemochromatosis","hereditary hemochromatosis","עומס ברזל","עודף ברזל","iron overload","פריטין גבוה","high ferritin"],
+    blurb:"בירור ראשוני של עומס ברזל נשען בעיקר על רוויית טרנספרין ופריטין יחד. פריטין לבדו אינו מאבחן ועלול לעלות גם בדלקת, כבד שומני, אלכוהול ומצבים נוספים. ברזל, TIBC וטרנספרין משלימים את התמונה; ספירת דם ותפקודי כבד מסייעים להעריך השפעה נלווית. בדיקת HFE נשקלת כאשר בדיקות הברזל וההקשר האישי או המשפחתי מעלים חשד להמוכרומטוזיס תורשתי.",
+    testIds:["ferritin","tsat","iron","tibc","transferrin","hgb","alt","ast"],
+    optionalLabel:"לפי תוצאות, היסטוריה משפחתית והערכת רופא/ה",
+    optionalTestIds:["hfe_genetic","crp","gluc","hba1c","us_abd"] },
   { id:"keto", title:"תזונה קטוגנית / דיאטה דלת פחמימות", matchTags:["קיטו","keto","קטוגנית","דיאטה קטוגנית","low carb","דלת פחמימות"],
     blurb:"לפני ובמהלך דיאטה קטוגנית או דלת פחמימות משמעותית, כדאי לעקוב אחר פרופיל שומנים (שיכול להשתנות משמעותית), כולל Lp(a) כגורם סיכון גנטי שאינו מופיע בפרופיל השומנים הרגיל, לצד תפקודי כבד וכליות, אלקטרוליטים וחומצה אורית.",
     testIds:["gluc","hba1c","insulin","tchol","ldl","hdl","tg","apob","lpa","na","k","mg","alt","ast","uric","tsh"] },
@@ -3294,6 +3776,22 @@ function parseNumericRange(rangeStr) {
    even when the connection is indirect.
    ========================================================= */
 const CONCEPT_NOTES = {
+  hemochromatosis: {
+    label: "המוכרומטוזיס / עומס ברזל",
+    match: ["המוכרומטוזיס","המוכרומטוזיס תורשתי","hemochromatosis","haemochromatosis","hereditary hemochromatosis","HFE hemochromatosis","עומס ברזל","עודף ברזל","iron overload"],
+    tests: {
+      ferritin: "פריטין משקף את מאגרי הברזל ולכן הוא בדיקת פתיחה חשובה, אך אינו ספציפי: הוא יכול לעלות גם בדלקת, כבד שומני, אלכוהול, זיהום ומצבים מטבוליים. בחשד להמוכרומטוזיס חייבים לפרשו יחד עם רוויית טרנספרין וההקשר הקליני.",
+      tsat: "רוויית טרנספרין היא אחת מבדיקות הפתיחה המרכזיות לעומס ברזל. ערך גבוה באופן מתמשך, במיוחד יחד עם פריטין גבוה, מחזק את הצורך בבירור נוסף — אך אינו אבחנה לבדו.",
+      iron: "ברזל בסרום משלים את התמונה ומשמש לחישוב רוויית טרנספרין, אך הוא תנודתי ולכן אינו מספיק לבדו לאבחון.",
+      tibc: "TIBC משמש יחד עם ברזל לחישוב רוויית טרנספרין. ערך נמוך יכול להופיע בעומס ברזל, אך גם בדלקת, מחלת כבד ותת-תזונה.",
+      transferrin: "טרנספרין הוא נשא הברזל בדם. רמתו מסייעת לפרש את רוויית הטרנספרין ולהבדיל בין עומס ברזל, חוסר ברזל ודלקת.",
+      hfe_genetic: "בדיקת HFE היא בדיקת אישור גנטית ממוקדת כאשר פריטין ורוויית טרנספרין וההיסטוריה האישית או המשפחתית מעלים חשד. היא אינה מחליפה את בדיקות הברזל ואינה מזהה את כל סיבות עומס הברזל.",
+      hgb: "ספירת דם אינה מאבחנת המוכרומטוזיס, אך מסייעת להעריך את מצב הדם ולשלול תבניות אחרות לפני טיפול או הקזות דם.",
+      alt: "ALT מסייע להעריך אם קיים נזק כבדי נלווה לעומס ברזל; הוא אינו בדיקת אבחנה להמוכרומטוזיס.",
+      ast: "AST משלים את הערכת הכבד כאשר קיים חשד לעומס ברזל או פריטין גבוה.",
+      crp: "CRP עשוי לסייע להבין אם פריטין גבוה קשור לפחות בחלקו לתהליך דלקתי, משום שפריטין הוא גם סמן דלקת.",
+    }
+  },
   schizophrenia: {
     label: "סכיזופרניה / פסיכוזה",
     match: ["סכיזופרניה","schizophrenia","פסיכוזה","psychosis","אנטי-פסיכוטי","antipsychotic"],
@@ -3407,7 +3905,9 @@ const LAB_REPORT_SYNONYMS = {
   "tsh": "tsh", "t3- free": "ft3", "t3-free": "ft3", "t3 free": "ft3", "free t3": "ft3",
   "t4- free": "ft4", "t4-free": "ft4", "t4 free": "ft4", "free t4": "ft4",
   "testosterone- total": "testo", "testosterone total": "testo", "testosterone-total": "testo", "testosterone": "testo",
-  "vitamin b12": "b12", "ferritin": "ferritin", "insulin": "insulin",
+  "vitamin b12": "b12", "ferritin": "ferritin", "serum ferritin": "ferritin", "insulin": "insulin",
+  "transferrin saturation": "tsat", "transferrin saturation %": "tsat", "tsat": "tsat", "iron saturation": "tsat",
+  "רוויית טרנספרין": "tsat", "סטורציית טרנספרין": "tsat", "רווית טרנספרין": "tsat",
   "shbg": "shbg", "free androgen index": "free_androgen_index",
   "lh": "lh", "fsh": "fsh",
   "vitamin d (25-oh)": "vitd", "vitamin d(25-oh)": "vitd", "vitamin d": "vitd",
@@ -3805,12 +4305,13 @@ function AboutPanel({ onClose }) {
         <div className="idx-block">
           <div className="idx-block-label">📱 מה זה TestMe</div>
           <div className="idx-block-text">
-            אינדקס בדיקות רפואיות בעברית — {ALL_TESTS.length} בדיקות דם, קרדיו, הדמיה וסקר, עם חיפוש חכם לפי שם, תסמין או מצב רפואי, אפשרות להזין תוצאות אישיות ולקבל זיהוי חריגות וקורלציות אפשריות, ופאנלים מומלצים לפי נושא.
+            אינדקס רפואי בעברית — {ALL_TESTS.length} בדיקות דם, קרדיו, הדמיה וסקר, לצד {WHY_CARNIVORE_CONDITIONS.length} רשומות מצב רפואי מ-WhyCarnivore עם שמות בעברית, באנגלית, קיצורים ואיותים חלופיים. החיפוש פועל בשני הכיוונים: מחלה מציגה בדיקות קשורות, ובדיקה מציגה מצבים שבהם היא עשויה להשתלב בבירור או במעקב. מיפוי זה הוא כלי ניווט כללי ואינו אבחנה.
           </div>
         </div>
         <div className="idx-block">
           <div className="idx-block-label">🕓 היסטוריית גרסאות</div>
           <div className="idx-block-text">
+            <b>3.17.2</b> — נוסף אינדקס מצבים רפואיים מקיף המבוסס על כותרות WhyCarnivore, עם שמות בעברית ובאנגלית, קיצורים ואיותים חלופיים; נוסף חיפוש דו-כיווני בין מחלות לבדיקות ובין בדיקות למחלות; נוספו רוויית טרנספרין (TSAT), בדיקת HFE, פאנל ותבנית לעומס ברזל והסברים זהירים להמוכרומטוזיס.<br/>
             <b>3.17.1</b> — תיקון מיזוג: כל יכולות 3.11–3.16.1 הוחזרו ונשמרו, כולל פאנלי נשים בגיל המעבר וגברים מגיל 50, טפסי Word מובנים, ייצוא פאנלים וייצוא/מחיקת מדידות; כל שיפורי 3.17.0 נשמרו.<br/>
             <b>3.17.0</b> — שיפור הזנת תוצאות במובייל: שדה התוצאה הידני כעת רחב ומסומן בבירור; חיפוש מכל לשונית מעביר אוטומטית לאינדקס ומחפש בכל הקטגוריות; נוסף חיפוש מלא לאנדומטריוזיס (כולל איותים נפוצים) ופאנל ייעודי; הסבר הסיכון הקרדיווסקולרי מוצג גם בתוך כל בדיקה רלוונטית; ושמות הצנתורים הופרדו בבירור ל״צנתור וירטואלי — לא פולשני״ מול ״צנתור לב אבחנתי פולשני״.<br/>
             <b>3.16.1</b> — תיקון הורדת מסמכי ה-Word המובנים בפאנלים המומלצים לגברים ולנשים ב-Android: שמירת עותק במכשיר ופתיחת חלון שמירה/שיתוף מקורי.<br/>
@@ -4156,6 +4657,79 @@ function IndexList({ tests, onSelect, query, isFuzzy, secondaryStartIndex, reaso
           {grouped[letter].map(renderCard)}
         </div>
       ))}
+    </div>
+  );
+}
+
+function ConditionSearchResults({ matches, query, onSelectTest }) {
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => setExpanded(false), [query]);
+
+  const cleanQuery = (query || "").trim();
+  if (!cleanQuery || !matches || matches.length === 0) return null;
+
+  const visible = expanded ? matches : matches.slice(0, 6);
+  return (
+    <div className="idx-block" style={{marginBottom:14, background:"#F8FBF7", borderColor:"#CFE0D3"}}>
+      <div className="idx-block-label" style={{display:"flex", justifyContent:"space-between", gap:10, alignItems:"center", flexWrap:"wrap"}}>
+        <span>🩺 מצבים רפואיים הקשורים לחיפוש</span>
+        <span style={{fontSize:11.5, color:"#6F776E", fontWeight:600}}>{matches.length} התאמות</span>
+      </div>
+      <div style={{fontSize:11.5, lineHeight:1.55, color:"#6F776E", margin:"5px 0 10px"}}>
+        שמות המצבים והכותרות נאספו מ-WhyCarnivore, כולל שמות בעברית, באנגלית ואיותים חלופיים. מיפוי הבדיקות נועד לניווט ולבירור כללי בלבד; הוא אינו מאמץ את טענות העדויות באתר ואינו מהווה אבחנה.
+      </div>
+      <div style={{display:"grid", gap:9}}>
+        {visible.map(({ condition, matchType, matchedTestId }) => {
+          const matchedTest = matchedTestId ? TEST_MAP[matchedTestId] : null;
+          const matchedRole = matchedTest ? condition.testRoles?.[matchedTest.id] : null;
+          const tests = condition.testIds.map(id => TEST_MAP[id]).filter(Boolean);
+          return (
+            <div key={condition.id} style={{border:"1px solid #DDE8DF", borderRadius:10, background:"#FFFFFF", padding:"10px 11px"}}>
+              <div style={{fontWeight:800, fontSize:14.5, color:"#2F4C39"}}>{condition.he}</div>
+              <div style={{fontSize:12.5, color:"#6D776F", marginTop:2}}>{condition.en}</div>
+              <div style={{display:"flex", gap:6, flexWrap:"wrap", marginTop:6}}>
+                <span className="idx-chip" style={{cursor:"default", background:"#EDF5EF", color:"#3E6A4B"}}>{condition.groupLabel}</span>
+                <span className="idx-chip" style={{cursor:"default", background:"#F3F0E8", color:"#6D665C"}}>סעיף מקור {condition.section}</span>
+              </div>
+              <div style={{fontSize:12, color:"#8A5A39", marginTop:7}}>
+                {matchType === "test" && matchedTest
+                  ? `נמצא דרך הבדיקה "${matchedTest.name}" — ${matchedRole || "בירור או מעקב אפשרי"}.`
+                  : `נמצא לפי שם המחלה, התרגום או מונח חלופי הקשור ל-"${cleanQuery}".`}
+              </div>
+              <div style={{fontSize:12.3, lineHeight:1.55, color:"#5B5346", marginTop:7}}>{condition.note}</div>
+              {tests.length > 0 ? (
+                <div style={{marginTop:8}}>
+                  <div style={{fontSize:11.5, color:"#7B746A", fontWeight:700, marginBottom:5}}>בדיקות ומדדים קשורים</div>
+                  <div style={{display:"flex", gap:6, flexWrap:"wrap"}}>
+                    {tests.slice(0, 12).map(test => (
+                      <button
+                        key={test.id}
+                        className="idx-chip"
+                        style={{cursor:"pointer", border:"1px solid #D7E3D9", background:"#F4F8F5", color:"#315A3E", fontFamily:"inherit"}}
+                        title={condition.testRoles?.[test.id] || "בדיקה אפשרית בבירור או במעקב"}
+                        onClick={() => onSelectTest(test, `רלוונטית ל"${condition.he}" — ${condition.testRoles?.[test.id] || "בירור או מעקב אפשרי"}`)}
+                      >
+                        {test.name}
+                      </button>
+                    ))}
+                    {tests.length > 12 && <span style={{fontSize:11.5, color:"#7B746A", alignSelf:"center"}}>+{tests.length - 12} נוספות</span>}
+                  </div>
+                </div>
+              ) : (
+                <div style={{fontSize:11.5, color:"#8A8175", marginTop:8}}>לא קיימת בדיקת מעבדה יחידה שמאבחנת מצב זה; הבירור עשוי להיות קליני או ייעודי.</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {matches.length > 6 && (
+        <button
+          onClick={() => setExpanded(value => !value)}
+          style={{marginTop:10, width:"100%", border:"1px solid #BFD3C3", background:"#F1F7F2", color:"#315A3E", borderRadius:9, padding:"8px 10px", fontFamily:"inherit", fontWeight:700, cursor:"pointer"}}
+        >
+          {expanded ? "הצג פחות" : `הצג את כל ${matches.length} ההתאמות`}
+        </button>
+      )}
     </div>
   );
 }
@@ -5728,6 +6302,8 @@ function BloodTestIndexInner() {
     return getSearchSuggestions(q, 6);
   }, [query]);
 
+  const conditionMatches = useMemo(() => getConditionSearchMatches(query), [query]);
+
   const { filtered, isFuzzy, secondaryStartIndex, reasonMap } = useMemo(() => {
     const inCategory = ALL_TESTS.filter(t => category === "all" || t.category === category);
     let q = query.trim();
@@ -5739,9 +6315,18 @@ function BloodTestIndexInner() {
     const qLower = effectiveQ.toLowerCase();
     const synMatchId = lookupLabSynonym(effectiveQ);
 
-    // Symptom / concept routing → ordered list of test IDs (direct first)
+    // Symptom routing and disease/condition routing are merged. A disease can
+    // therefore be found by its Hebrew/English name, and a test can expose the
+    // conditions that commonly use it in evaluation or monitoring.
     const routeKey = Object.keys(SYMPTOM_ROUTES).find(k => k === qLower || qLower.includes(k) || k.includes(qLower));
-    const routeIds = routeKey ? SYMPTOM_ROUTES[routeKey] : null;
+    const symptomRouteIds = routeKey ? SYMPTOM_ROUTES[routeKey] : [];
+    const matchedConditions = directConditionMatches(effectiveQ);
+    const conditionRouteIds = Array.from(new Set(matchedConditions.flatMap(condition => condition.testIds)));
+    const routeIds = Array.from(new Set([...conditionRouteIds, ...symptomRouteIds]));
+    const conditionReasonByTest = {};
+    matchedConditions.forEach(condition => condition.testIds.forEach(testId => {
+      if (!conditionReasonByTest[testId]) conditionReasonByTest[testId] = condition.he;
+    }));
 
     // DIRECT matches: name / english / tag / synonym / routed — reason computed
     // right here, at the point we actually know why each test matched.
@@ -5754,14 +6339,16 @@ function BloodTestIndexInner() {
       else if (t.en && t.en.toLowerCase().includes(qLower)) reason = `השם באנגלית כולל את "${q}"`;
       else if (matchedTag) reason = `קשורה לנושא "${matchedTag}"`;
       else if (synMatchId && t.id === synMatchId) reason = `זוהתה כשם מקביל לבדיקה זו בדוחות מעבדה`;
-      else if (routeIds && routeIds.includes(t.id)) reason = `רלוונטית לחיפוש "${q}"`;
+      else if (routeIds.includes(t.id)) reason = conditionReasonByTest[t.id]
+        ? `רלוונטית לבירור או למעקב של "${conditionReasonByTest[t.id]}"`
+        : `רלוונטית לחיפוש "${q}"`;
       if (reason) { directSet.add(t.id); reasons[t.id] = reason; }
       return Boolean(reason);
     });
 
     if (direct.length > 0) {
       // Order: routed order first (if any), then keep others
-      if (routeIds) {
+      if (routeIds.length > 0) {
         direct.sort((a, b) => {
           const ai = routeIds.indexOf(a.id), bi = routeIds.indexOf(b.id);
           return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
@@ -5825,7 +6412,7 @@ function BloodTestIndexInner() {
         <div style={{display:"flex", alignItems:"flex-start", justifyContent:"space-between", flexWrap:"wrap", rowGap:8}}>
           <div style={{minWidth:0, flex:"1 1 auto"}}>
             <h1 className="idx-title">TestMe</h1>
-            <div className="idx-subtitle">{ALL_TESTS.length} בדיקות · דם · קרדיו · הדמיה · סקר</div>
+            <div className="idx-subtitle">{ALL_TESTS.length} בדיקות · {WHY_CARNIVORE_CONDITIONS.length} רשומות מצב רפואי · עברית ואנגלית</div>
           </div>
           <div style={{display:"flex", alignItems:"center", gap:8, flexShrink:0}}>
             {auth ? (
@@ -5848,7 +6435,7 @@ function BloodTestIndexInner() {
         </div>
         <div className="idx-search-wrap">
           <Search size={17} color="#8A8175" />
-          <input placeholder="חיפוש בדיקה / תסמין..." value={query} onChange={e => handleGlobalSearchChange(e.target.value)} />
+          <input placeholder="חיפוש בדיקה / מחלה / תסמין..." value={query} onChange={e => handleGlobalSearchChange(e.target.value)} />
           {query && <X size={16} color="#8A8175" style={{cursor:"pointer"}} onClick={() => handleGlobalSearchChange("")} />}
           <button
             onClick={() => { if (isListening) return; setShowLangPicker(p => !p); }}
@@ -5931,7 +6518,12 @@ function BloodTestIndexInner() {
               </div>
             </div>
           )}
-          {isFuzzy && (
+          <ConditionSearchResults
+            matches={conditionMatches}
+            query={query}
+            onSelectTest={(t, reason) => { setSelectedTest(t); setSelectedReason(reason || null); }}
+          />
+          {isFuzzy && conditionMatches.length === 0 && (
             <div style={{fontSize:12.5, color:"#8A8175", padding:"2px 2px 10px"}}>
               לא נמצאה התאמה מדויקת — אלו התוצאות הקרובות ביותר:
             </div>
